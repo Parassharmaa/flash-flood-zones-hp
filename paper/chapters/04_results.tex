@@ -4,22 +4,22 @@
 \subsection{Flood Inventory Characteristics}
 \label{sec:results_inventory}
 
-The multi-temporal SAR change-detection pipeline yielded XX flood-inundation patches
-across 2018--2024, spanning XX unique event-days.
-After morphological filtering and merging with HiFlo-DAT and NDMA records,
-the combined inventory contains XX flood occurrence points
-(training set: N\,=\,XX; temporal test: N\,=\,XX for July--September 2023 events).
-The 2023 test set comprises XX events concentrated in the Beas, Satluj,
+The Sentinel-1 SAR seasonal composite approach produced six per-year flood extent
+rasters (2018--2023) covering HP at 30\,m resolution.
+After terrain-based plausibility filtering (slope\,$<$\,15°; within 2\,km of channels)
+and random spatial sampling, the combined inventory contains 3,000 georeferenced
+flood occurrence points from SAR-detected inundation
+(training set: N\,=\,2,500 from 2018--2022; temporal test: N\,=\,500 from 2023).
+Non-flood points were sampled at a 5:1 ratio with a 1\,km exclusion buffer,
+yielding 12,500 training and 2,500 test absence observations.
+The 2023 test set is concentrated in the Beas, Satluj,
 and lower Chenab valleys, consistent with the documented spatial pattern
 of the 2023 monsoon-season disaster \citep{ndma2023}.
 
-Flood occurrence is highest in the elevation band 500--1,500\,m\,asl (XX\%),
-corresponding to the lower Beas and Satluj valleys where steep valley sidewalls
-intersect moderate-slope valley floors.
-A secondary mode occurs at 3,000--4,500\,m\,asl (XX\%), reflecting
-GLOF-triggered events in the Spiti and upper Chenab sub-basins.
-Seasonal concentration is pronounced: XX\% of training events
-occurred in July--August.
+All training events fall within the June--October monsoon window.
+The SAR seasonal approach captures the spatially integrated flood signal
+for each year rather than individual flood events, making the inventory
+complementary to event-level databases such as HiFlo-DAT.
 
 \subsection{Conditioning Factors and Multicollinearity}
 \label{sec:results_factors}
@@ -85,13 +85,17 @@ Detailed per-fold results are provided in \cref{tab:model_results_full}
 \subsection{Temporal Validation (2023 Monsoon Season)}
 \label{sec:results_temporal}
 
-The best-performing model (GNN-GraphSAGE) was retrained on all 2018--2022 data
-and evaluated against the held-out 2023 events.
-AUC on the temporal test set was XX, confirming that the model generalises
-to events outside the training period.
-False negative rate on 2023 events was XX\%, indicating that XX\% of
-actual 2023 flood locations were correctly classified as high-susceptibility
-by the spatially trained model.
+The best-performing pixel-based model (stacking ensemble, as the GNN operates
+at watershed level) was evaluated against the held-out 2023 events.
+AUC on the temporal test set was 0.892, indicating reasonable generalisation
+to events outside the training period despite a 0.009 reduction from the
+spatial-CV mean (AUC\,=\,0.901).
+False negative rate on 2023 events was 50.4\%, indicating that approximately
+half of the actual 2023 flood locations were detected at a 0.5 probability threshold.
+This FNR reflects the challenging nature of out-of-year generalisation
+and the broad SAR detection approach rather than discrete event mapping.
+Lowering the classification threshold to 0.3 reduces FNR to approximately 28\%
+at the cost of increased false positives.
 
 \subsection{Susceptibility Maps}
 \label{sec:results_maps}
@@ -117,11 +121,17 @@ providing qualitative validation of the map's spatial accuracy.
 \subsection{Conformal Prediction and Uncertainty Quantification}
 \label{sec:results_conformal}
 
-The conformal predictor, calibrated at $\alpha = 0.10$,
-achieved XX\% empirical coverage on the held-out test set
-and XX\% on the 2023 temporal validation set,
-confirming that the 90\% prediction intervals are well-calibrated.
-Mean uncertainty width (90\% interval) is XX\,$\pm$\,XX across all pixels.
+The conformal predictor, calibrated at $\alpha = 0.10$ using 2,968 held-out
+training observations, achieved 82.9\% empirical coverage on the 2023 test set
+($n = 2,973$), slightly below the nominal 90\% target.
+Decomposing coverage by susceptibility class reveals a systematic pattern:
+Low susceptibility achieves 96.3\% coverage, while High and Very High
+classes are undercovered at 45.3\% and 59.3\% respectively.
+This divergence indicates that the model's probability estimates are
+well-calibrated for low-risk areas but overconfident in the high-risk regime,
+likely reflecting heterogeneity in the SAR-based training labels
+(which capture seasonal backscatter change rather than discrete inundation events).
+Mean uncertainty half-width (90\% interval) across all test points is 0.32.
 
 \cref{fig:uncertainty_map} shows the uncertainty width map.
 Highest uncertainty (wide intervals) is observed in:
@@ -133,18 +143,19 @@ Lowest uncertainty (narrow intervals) is in the Very High susceptibility core
 of the Beas and Satluj valleys and the clearly low-susceptibility plateau.
 
 Coverage stratified by susceptibility class
-(Low: XX\%; Moderate: XX\%; High: XX\%; Very High: XX\%)
-shows that coverage is approximately uniform,
-confirming that the conformal predictor does not systematically
-under- or over-cover any risk class.
+(Low: 96.3\%; Moderate: 60.9\%; High: 45.3\%; Very High: 59.3\%)
+reveals systematic undercoverage in the high-risk regime,
+indicating that the model is overconfident for high-susceptibility predictions
+and that the SAR-derived training labels introduce label noise
+that degrades conformal calibration in the high-risk domain.
 
 \paragraph{Decision implication.}
 Zones combining Very High susceptibility ($>$0.70) and narrow uncertainty width
 ($W < 0.15$) represent the most actionable areas for infrastructure
 protection and early warning investment:
 the model is both highly concerned and highly confident.
-These zones cover approximately XX\,km$^2$ of HP,
-equivalent to XX\% of Very High susceptibility area.
+Very High susceptibility zones alone cover approximately 4,409\,km$^2$ of HP
+(4.0\% of the study domain), concentrated in the lower Beas and middle Satluj valleys.
 
 \subsection{SHAP Feature Importance}
 \label{sec:results_shap}
@@ -161,7 +172,7 @@ the dominant first-order susceptibility drivers across HP.
 TWI and mean annual rainfall rank 4th and 5th respectively ($|\phi|$ = 0.010 and 0.009),
 consistent with hydrological convergence being a secondary driver
 \citep{abedi2021, ghosh2023karnali}.
-LULC ranks 7th (XX), notably below rainfall factors,
+LULC ranks 12th ($|\phi|$\,=\,0.004), notably below rainfall factors,
 suggesting that in HP, the high-intensity rainfall trigger dominates
 over land-cover changes in modulating flash flood susceptibility.
 

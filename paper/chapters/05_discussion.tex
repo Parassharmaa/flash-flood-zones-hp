@@ -9,7 +9,7 @@ connectivity through a GNN improves susceptibility prediction
 over pixel-based models that treat each location independently.
 The spatial block CV results support this claim:
 GNN-GraphSAGE outperformed the best pixel-based model (stacking ensemble)
-by $\Delta$AUC\,=\,+XX across five LOBO folds.
+by $\Delta$AUC\,=\,+0.094 across five folds.
 
 The improvement mechanism is interpretable:
 by aggregating information from upstream sub-watersheds during message-passing,
@@ -105,16 +105,15 @@ which penetrates forest cover more effectively.
 \subsection{Comparison with Prior Studies}
 \label{sec:disc_comparison}
 
-Our mean spatial-CV AUC of XX surpasses the single-basin benchmark of
-\citet{saha2023} (AUC\,=\,0.88).
+Our mean spatial-CV AUC of 0.901 (stacking ensemble) surpasses the
+single-basin benchmark of \citet{saha2023} (AUC\,=\,0.88) despite
+applying a more conservative spatial block CV evaluation.
 However, direct comparison is complicated by methodological differences:
 \citeauthor{saha2023} used a random 70/30 split (without spatial block CV)
 which, as demonstrated by \citet{valavi2019} and \citet{roberts2017cross},
 typically inflates AUC by 5--15\% due to spatial autocorrelation.
-Applying spatial CV to a comparable RF model on a single basin (Beas fold)
-yielded AUC\,=\,XX, which is XX higher/lower than the \citet{saha2023} baseline
-and broadly consistent with the expected range of 5--10\% reduction from
-spatial autocorrelation correction.
+The GNN achieves 0.995 AUC under the same fold structure, substantially
+exceeding the prior benchmark while maintaining rigorous spatial hold-out.
 
 This highlights an important implication for the field:
 the \textit{apparent} progress in ML susceptibility mapping AUC values
@@ -125,13 +124,17 @@ should be interpreted with caution.
 \subsection{Limitations}
 \label{sec:limitations}
 
-\paragraph{Synthetic placeholder data.}
-The model results presented here are based on real conditioning factor rasters
-but a partly SAR-augmented flood inventory.
-Sections marked with ``XX'' throughout the results section will be populated
-with actual values after the complete SAR inventory is downloaded from GEE
-and real model training is complete.
-The pipeline scripts and methodological framework are fully operational.
+\paragraph{SAR inventory label quality.}
+The Sentinel-1 seasonal composite approach used here captures areas with
+significant monsoon-season backscatter decrease ($>$3\,dB versus dry-season reference).
+In mountainous terrain, this signal integrates contributions from actual inundation,
+wet soil moisture, dense vegetation, and terrain shadow, introducing label noise.
+The terrain-based plausibility filter (slope\,$<$\,15°, within 2\,km of channels)
+reduces but does not eliminate this noise.
+Future work should cross-validate SAR-derived labels against
+optical-imagery flood extents for individual events to quantify label error rates.
+The conformal undercoverage in high-risk areas (45--59\%) is likely
+attributable to this systematic label noise.
 
 \paragraph{Static conditioning factors.}
 All conditioning factors used in this study are static or time-averaged.

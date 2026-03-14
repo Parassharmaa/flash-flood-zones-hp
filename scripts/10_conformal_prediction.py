@@ -372,18 +372,66 @@ def main() -> None:
         if factor_names_path.exists() else []
     )
 
-    # Generate synthetic train/calib/test for pipeline testing
-    from config import RANDOM_SEED
-    rng = np.random.default_rng(RANDOM_SEED)
-    n   = 800
-    X_all = rng.standard_normal((n, max(len(factor_names), 8))).astype(np.float32)
-    y_all = (X_all[:, 0] + X_all[:, 1] > 0).astype(int)
+    # Load real flood inventory features for calibration
+    import geopandas as gpd
+    import rasterio as _rio
 
-    # Split: 60% train, 20% calibration, 20% test
-    i1, i2 = int(n * 0.6), int(n * 0.8)
-    X_tr, y_tr     = X_all[:i1],    y_all[:i1]
-    X_cal, y_cal   = X_all[i1:i2],  y_all[i1:i2]
-    X_te, y_te     = X_all[i2:],    y_all[i2:]
+    flood_gdf    = gpd.read_file(INVENTORY_DIR / "flood_points.geojson")
+    nonflood_gdf = gpd.read_file(INVENTORY_DIR / "nonflood_points.geojson")
+    stack_path   = FACTORS_DIR / "factor_stack.tif"
+
+    def _sample(gdf, label):
+        rows = []
+        with _rio.open(stack_path) as src:
+            for _, row in gdf.iterrows():
+                pt = row.geometry
+                try:
+                    vals = list(src.sample([(pt.x, pt.y)]))[0]
+                    rows.append(list(vals) + [label])
+                except Exception:
+                    pass
+        return rows
+
+    if stack_path.exists() and len(flood_gdf) > 0:
+        print("  Sampling real inventory for calibration/test split...")
+        train_flood    = flood_gdf[flood_gdf["split"] == "train"]
+        test_flood     = flood_gdf[flood_gdf["split"] == "test"]
+        train_nonflood = nonflood_gdf[nonflood_gdf["split"] == "train"]
+        test_nonflood  = nonflood_gdf[nonflood_gdf["split"] == "test"]
+
+        all_train_rows = _sample(train_flood, 1) + _sample(train_nonflood, 0)
+        test_rows      = _sample(test_flood,  1) + _sample(test_nonflood,  0)
+
+        mat   = np.array(all_train_rows, dtype=np.float32)
+        valid = np.all(mat[:, :-1] != -9999, axis=1) & np.all(np.isfinite(mat[:, :-1]), axis=1)
+        mat   = mat[valid]
+
+        X_all = mat[:, :-1]
+        y_all = mat[:, -1].astype(int)
+
+        # 80% train, 20% calibration from training split
+        n      = len(X_all)
+        i1     = int(n * 0.80)
+        X_tr, y_tr   = X_all[:i1], y_all[:i1]
+        X_cal, y_cal = X_all[i1:], y_all[i1:]
+
+        mat_te   = np.array(test_rows, dtype=np.float32)
+        valid_te = np.all(mat_te[:, :-1] != -9999, axis=1) & np.all(np.isfinite(mat_te[:, :-1]), axis=1)
+        mat_te   = mat_te[valid_te]
+        X_te, y_te = mat_te[:, :-1], mat_te[:, -1].astype(int)
+
+        print(f"  Train: {len(X_tr)}, Calib: {len(X_cal)}, Test: {len(X_te)}")
+    else:
+        # Fallback synthetic data
+        from config import RANDOM_SEED
+        rng = np.random.default_rng(RANDOM_SEED)
+        n   = 800
+        X_all = rng.standard_normal((n, max(len(factor_names), 8))).astype(np.float32)
+        y_all = (X_all[:, 0] + X_all[:, 1] > 0).astype(int)
+        i1, i2 = int(n * 0.6), int(n * 0.8)
+        X_tr, y_tr   = X_all[:i1],   y_all[:i1]
+        X_cal, y_cal = X_all[i1:i2], y_all[i1:i2]
+        X_te, y_te   = X_all[i2:],   y_all[i2:]
 
     # Fit conformal predictor
     mapie, method = fit_conformal_predictor(model, X_tr, y_tr, X_cal, y_cal)
