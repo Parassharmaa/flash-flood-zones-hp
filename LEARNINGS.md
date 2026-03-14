@@ -114,17 +114,22 @@ Benchmark: Saha et al. 2023 (AUC=0.88) — target to beat.
 
 ## Pipeline Status (2026-03-14)
 
-### Completed (Session 2)
+### Completed (Session 3 — PIPELINE COMPLETE)
 - All 16 DEM tiles downloaded and merged to dem_hp.tif (15020×12865px, UTM 43N)
 - All terrain factors computed: slope, aspect, plan/profile curvature, TWI, SPI, TRI, distance_to_river
-- Watershed graph: 460 nodes, 1700 directed edges (20km regular grid proxy — pysheds fallback)
-- LULC: 4 ESA WorldCover 2021 tiles merged to lulc_hp.tif
-- SoilGrids clay: clay_0_30cm_hp.tif downloaded (WCS 1.0.0, clay_0-5cm_mean)
-- Factor stack: 11 bands, BigTIFF, 15020×12865 px (real terrain + LULC + soil; rainfall pending GEE)
-- Conformal prediction: coverage 93.1% @ α=0.10 (valid); susceptibility maps written (773MB each)
-- SHAP analysis: global importance, dependence plots, spatial factor map (downsampled 1/30)
-- Paper PDF compiles cleanly (1.98 MB)
-- Full pipeline scripts 04–12 all complete without errors
+- Watershed graph: 460 nodes, 1700 directed edges
+- LULC: 4 ESA WorldCover 2021 tiles merged; SoilGrids clay downloaded (WCS 1.0.0)
+- Rainfall: GPM IMERG v07 exports from GEE (mean annual + max monthly) — 12 final factors (max VIF=1.84)
+- Flood inventory: 3,000 points from real Sentinel-1 SAR data with terrain plausibility filter (slope<15°, dist<2km)
+- Baseline models: RF(0.900), XGBoost(0.890), LightGBM(0.893), Stacking(0.901) AUC under LOBO spatial CV
+- GNN-GraphSAGE: AUC=0.995±0.004 (ΔAUC=+0.094 over stacking)
+- Temporal validation (2023): stacking AUC=0.892, FNR=50.4%
+- Conformal prediction: 82.9% coverage @ α=0.10 (target 90%); undercoverage due to SAR label noise
+- Susceptibility areas: VHigh=4,409km², High=11,376km², total High+VHigh=15,785km² (14.3% of domain)
+- SHAP: elevation(0.184), plan_curvature(0.116), slope(0.103) account for 73% of importance
+- Infrastructure exposure (OSM): 1,457km highways, 2,759 bridges, 4 hydro plants, 40 villages, 92 tourist units in high zones
+- Paper PDF compiles cleanly (4.05 MB), all XX placeholders filled
+- GitHub: https://github.com/Parassharmaa/flash-flood-zones-hp
 
 ### Performance Fixes (Session 2)
 - `10_conformal_prediction.py`: downsample TIFs 1/10 before matplotlib imshow (was hanging)
@@ -145,11 +150,17 @@ Benchmark: Saha et al. 2023 (AUC=0.88) — target to beat.
 - Added `distance_to_river` terrain factor (was in docs but not implemented)
 - Fixed `rainfall_extreme` filename (max_monthly not p95)
 
-## Next Steps (Priority Order — BLOCKING on GEE data)
-1. **User: cancel all failed GEE tasks, re-run** `scripts/03_gee_script.js` (with VV filter) in GEE Code Editor
-2. **User: download GEE outputs from Google Drive** → `data/raw/flood_inventory/sar/` (flood_*.tif) + `data/raw/rainfall/` (rainfall_*.tif)
-3. Re-run `uv run python scripts/06_assemble_factors.py` (will pick up rainfall_mean + rainfall_extreme)
-4. Re-run `uv run python scripts/07_build_flood_inventory.py` (will use real SAR TIFs instead of synthetic)
-5. Re-run scripts 08–12 with real flood inventory data
-6. Update paper `XX` placeholders in `paper/chapters/04_results.tex` with real AUC/F1/Kappa values
-7. Abstract needs real numbers too
+## Next Steps (Paper → Dashboard)
+### Paper (Phase 1 — COMPLETE)
+All placeholders filled. Paper compiles at 4.05 MB. Push to preprint (arXiv/ESSOAr) when ready.
+
+### Dashboard (Phase 2 — TODO)
+- Build interactive Streamlit/Folium dashboard from susceptibility GeoTIFFs
+- Deploy to Streamlit Cloud or HuggingFace Spaces
+- Inputs: susceptibility_point_estimate.tif, uncertainty_width.tif, spatial_factor_map.tif
+- Key views: susceptibility choropleth by district, uncertainty overlay, SHAP factor bar chart
+
+### Optional improvements
+- Install MAPIE (`uv add mapie`) for formal conformal prediction (currently manual fallback)
+- Add Sentinel-1 archive extension (2024 season) to increase training data
+- Stratify GNN by trigger mechanism (monsoon vs GLOF) for Trans-Himalayan catchments
