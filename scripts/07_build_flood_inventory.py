@@ -59,8 +59,10 @@ def load_sar_inventory() -> gpd.GeoDataFrame:
             transform = src.transform
             crs = src.crs
 
-        # Convert flood pixels to centroids
-        flood_mask = (data == 1)
+        # Morphological opening: remove isolated pixels (small-patch filter)
+        # Replaces connectedPixelCount removed from GEE to avoid CRS errors
+        from scipy.ndimage import binary_opening
+        flood_mask = binary_opening(data == 1, structure=np.ones((3, 3)))
         ys, xs = np.where(flood_mask)
 
         # Sample up to 500 points per event (avoid huge inventories)
