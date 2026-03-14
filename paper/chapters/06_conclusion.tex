@@ -37,11 +37,12 @@ The principal findings are as follows:
     the 4,409\,km$^2$ highest-priority zones for pre-monsoon intervention.
 
   \item \textbf{Spatial cross-validation corrects AUC inflation.}
-    The random 5-fold CV yielded stacking AUC of 0.901;
-    the Saha et al.\ (2023) benchmark of 0.88 with random splits
-    likely reflects modest optimism from spatial autocorrelation.
-    All four pixel-based models in this study (AUC 0.890--0.901) outperform
-    that benchmark while using spatially conservative evaluation.
+    Spatial block CV (leave-one-block-out) yields pixel-based model AUC of
+    0.870--0.881, versus the \citet{saha2023} benchmark of 0.88 with
+    random splits --- a modest but more honestly obtained comparison.
+    The benchmark's small AUC advantage likely reflects the 5--15\% inflation
+    documented for random splits with spatially autocorrelated data
+    \citep{valavi2019, roberts2017cross}, rather than a genuinely superior model.
 
   \item \textbf{Elevation, plan curvature, and slope are the dominant drivers.}
     SHAP analysis identified these three terrain morphometry factors as

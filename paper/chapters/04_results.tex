@@ -25,19 +25,19 @@ complementary to event-level databases such as HiFlo-DAT.
 \label{sec:results_factors}
 
 Pearson correlation screening ($|r| > 0.80$) and VIF analysis ($> 10$)
-identified no factors requiring removal from the initial set of 11 variables.
+identified no factors requiring removal from the initial set of 12 variables.
 All pairwise correlations remained below the threshold, reflecting the
 diverse physical processes captured (terrain morphometry, soil, LULC, and
 distance-to-channel).
 Maximum VIF in the retained set was 1.84 (LULC), indicating minimal
 multicollinearity.
-The final factor set therefore comprises all 11 conditioning variables:
+The final factor set therefore comprises all 12 conditioning variables:
 elevation, slope, aspect, plan curvature, profile curvature, TWI, SPI,
-TRI, distance to river, land use/land cover, and soil clay content.
+TRI, distance to river, mean annual rainfall, land use/land cover, and soil clay content.
 
 The spatial distribution of key factors confirms expected patterns:
 TWI is highest in valley floors and confluences; SPI peaks in the steep
-lower gorges of the Beas and Satluj; extreme rainfall (p95) exhibits a
+lower gorges of the Beas and Satluj; mean annual rainfall exhibits a
 south-west to north-east gradient reflecting orographic uplift patterns.
 
 \subsection{Model Performance}
@@ -249,14 +249,14 @@ the dominant first-order susceptibility drivers across HP.
 TWI and mean annual rainfall rank 4th and 5th respectively ($|\phi|$ = 0.010 and 0.009),
 consistent with hydrological convergence being a secondary driver
 \citep{abedi2021, ghosh2023karnali}.
-LULC ranks 12th ($|\phi|$\,=\,0.004), notably below rainfall factors,
-suggesting that in HP, the high-intensity rainfall trigger dominates
-over land-cover changes in modulating flash flood susceptibility.
+LULC ranks 12th ($|\phi|$\,=\,0.004), notably below the rainfall factor,
+suggesting that in HP, the long-term rainfall gradient is a stronger
+susceptibility signal than land-cover changes.
 
 \paragraph{District spatial variation.}
 The dominant factor map reveals marked geographic
 variation in the primary susceptibility driver.
-In the Shivalik foothills (Bilaspur, Una), extreme rainfall dominates.
+In the Shivalik foothills (Bilaspur, Una), mean annual rainfall dominates.
 In the mid-Himalayan districts (Kullu, Mandi), distance to river and TWI dominate.
 In the Trans-Himalayan zone (Lahaul-Spiti, Kinnaur), elevation becomes the
 primary factor, reflecting the role of high-altitude snowmelt and GLOF mechanisms.
@@ -327,7 +327,7 @@ Overlaying the susceptibility map with infrastructure exposure layers reveals:
   \includegraphics[width=\textwidth]{../results/paper_figures/fig_infrastructure_exposure.png}
   \caption{\textbf{Infrastructure exposure to high flash flood susceptibility.}
     \textit{Left:} Count of infrastructure assets in High or Very High susceptibility zones
-    across five categories. \textit{Right:} National highway exposure by route — NH-3
+    across five categories. \textit{Right:} National highway exposure by route --- NH-3
     (Manali--Leh) carries the highest exposure with 217\,km in High/Very High zones,
     followed by NH-5 (Shimla--Khab) with 156\,km.}
   \label{fig:infrastructure_exposure}
@@ -354,13 +354,13 @@ warrants immediate protective investment.
     \toprule
     Priority & Susceptibility & Uncertainty & Zone Area & Recommended Action \\
     \midrule
-    \textbf{P1 — Immediate} & Very High ($>$0.70) & Narrow ($W < 0.15$) & $\sim$1,200\,km$^2$ &
+    \textbf{P1 --- Immediate} & Very High ($>$0.70) & Narrow ($W < 0.15$) & $\sim$1,200\,km$^2$ &
       Immediate action: early warning deployment, bridge reinforcement, pre-monsoon clearance \\
-    \textbf{P2 — Capital} & High (0.50--0.70) & Any & $\sim$11,376\,km$^2$ &
+    \textbf{P2 --- Capital} & High (0.50--0.70) & Any & $\sim$11,376\,km$^2$ &
       Capital repair: prioritise roads and bridges in high-certainty corridors \\
-    \textbf{P3 — Monitor} & Very High ($>$0.70) & Wide ($W > 0.15$) & $\sim$3,200\,km$^2$ &
+    \textbf{P3 --- Monitor} & Very High ($>$0.70) & Wide ($W > 0.15$) & $\sim$3,200\,km$^2$ &
       Precautionary monitoring: invest in GLOF surveillance and data collection \\
-    \textbf{P4 — Routine} & Low--Moderate ($<$0.50) & Any & $\sim$94,000\,km$^2$ &
+    \textbf{P4 --- Routine} & Low--Moderate ($<$0.50) & Any & $\sim$94,000\,km$^2$ &
       Standard preparedness: seasonal advisory and routine maintenance \\
     \bottomrule
   \end{tabularx}
