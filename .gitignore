@@ -28,11 +28,8 @@ __pycache__/
 .env
 .venv/
 
-# Results (large outputs) — except dashboard data needed for deployment
+# Results (large outputs)
 results/
-!results/dashboard/
-!results/dashboard/*.geojson
-!results/dashboard/*.json
 
 # Raw data — track small GeoJSON/JSON/CSV but not large rasters
 data/raw/
