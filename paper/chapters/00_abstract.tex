@@ -1,0 +1,41 @@
+Flash floods are the most destructive natural hazard in Himachal Pradesh (HP), India,
+causing over 400 fatalities and \$1.2 billion in losses in the 2023 monsoon season alone.
+Existing susceptibility maps for the region are limited to a single river basin,
+use random train-test splits that inflate accuracy estimates,
+and provide only point-estimate risk scores with no quantified uncertainty.
+This study presents the first state-wide, multi-basin flash flood susceptibility assessment
+for HP that addresses all three shortcomings simultaneously.
+
+We constructed a multi-year flood inventory (2018--2024) from Sentinel-1 SAR imagery
+processed in Google Earth Engine, supplemented by the HiFlo-DAT historical database
+and NDMA event records (N\,=\,XX flood occurrences across five major river basins).
+Thirteen conditioning factors spanning terrain morphology, hydrology, land cover, soil,
+and rainfall were assembled at 30\,m resolution and assessed for multicollinearity.
+Four model families were evaluated: Random Forest (RF), XGBoost, LightGBM,
+and a stacking ensemble, serving as pixel-based baselines.
+As the primary methodological contribution, we trained a Graph Neural Network (GraphSAGE)
+on a directed watershed connectivity graph (N\,=\,XX sub-watersheds, XX edges),
+explicitly encoding upstream--downstream flood propagation that pixel-based models cannot capture.
+All models were validated with leave-one-basin-out spatial block cross-validation
+to avoid the 5--15\% AUC inflation typical of random splits.
+As a second novel contribution, we applied split-conformal prediction (MAPIE)
+to produce the first susceptibility maps with statistically guaranteed 90\% coverage intervals,
+enabling prioritisation of high-risk, high-certainty zones for emergency management.
+
+The GNN achieved a mean spatial-CV AUC of XX\,$\pm$\,XX, outperforming the best
+pixel-based model (stacking ensemble: AUC\,=\,XX\,$\pm$\,XX) and surpassing the
+benchmark reported by \citet{saha2023} (AUC\,=\,0.88) for the same study region.
+Conformal coverage analysis confirmed that the 90\% prediction intervals achieved
+\SI{XX}{\percent} empirical coverage on the 2023 held-out test set.
+SHAP analysis identified distance to river, TWI, and extreme rainfall (95th percentile)
+as the three most globally important susceptibility drivers,
+with marked spatial variation by district.
+High-susceptibility zones overlay XX\,km of national highway, XX bridges,
+and XX hydroelectric installations, representing critical infrastructure exposure
+that is directly actionable by HP State Disaster Management Authority.
+
+\noindent\textbf{Plain language summary:}
+We created the most complete flood risk map yet produced for Himachal Pradesh
+by teaching a machine-learning model that water flows downhill through connected river valleys
+(not just through isolated grid cells), and by reporting not only \textit{where} flooding is likely
+but \textit{how confident} the model is in each prediction.

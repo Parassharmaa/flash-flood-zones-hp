@@ -1,0 +1,93 @@
+\documentclass[12pt, a4paper]{article}
+
+% ── Packages ──────────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{setspace}
+\doublespacing
+
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{siunitx}
+\usepackage{array}
+\usepackage{tabularx}
+
+\usepackage[hidelinks, colorlinks=false]{hyperref}
+\usepackage[nameinlink]{cleveref}
+\usepackage{natbib}
+\bibliographystyle{abbrvnat}
+\setcitestyle{authoryear,open={(},close={)}}
+
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{lineno}
+\linenumbers
+
+% ── Metadata ──────────────────────────────────────────────────────────────────
+\title{%
+  \textbf{Flash Flood Susceptibility Mapping in Himachal Pradesh, India,
+  Using Graph Neural Networks and Conformal Prediction:
+  A SAR-Based Inventory with Uncertainty-Quantified Risk Assessment}
+}
+
+\author{
+  [Author Name]$^{1}$ \and
+  [Co-author]$^{2}$
+}
+
+\date{
+  $^{1}$[Department, Institution, City, Country]\\
+  $^{2}$[Department, Institution, City, Country]\\[6pt]
+  \textit{Correspondence:} \href{mailto:author@email.com}{author@email.com}
+}
+
+% ── Document ──────────────────────────────────────────────────────────────────
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\begin{abstract}
+\input{chapters/00_abstract}
+\end{abstract}
+
+\noindent\textbf{Keywords:} flash flood susceptibility; Graph Neural Network; GraphSAGE;
+conformal prediction; SAR flood inventory; Himachal Pradesh; spatial cross-validation;
+watershed graph; SHAP; uncertainty quantification
+
+\newpage
+\tableofcontents
+\newpage
+
+\input{chapters/01_introduction}
+\input{chapters/02_study_area}
+\input{chapters/03_data_methods}
+\input{chapters/04_results}
+\input{chapters/05_discussion}
+\input{chapters/06_conclusion}
+
+\section*{Acknowledgements}
+The Sentinel-1 SAR data were obtained through the Copernicus Open Access Hub.
+Digital Elevation Model data (GLO-30) were provided by the Copernicus DEM Programme.
+OpenStreetMap data were used under the Open Database Licence.
+HiFlo-DAT flood records were obtained from [cite HiFlo-DAT source].
+
+\section*{Author Contributions}
+[To be completed according to journal CRediT taxonomy.]
+
+\section*{Data Availability}
+All Python scripts, the compiled flood inventory (excluding restricted GEE exports),
+and model outputs are available at [repository URL].
+The SAR flood inventory will be archived at [Zenodo/institutional repository] upon acceptance.
+
+\section*{Competing Interests}
+The authors declare no competing interests.
+
+\bibliography{references}
+
+\end{document}

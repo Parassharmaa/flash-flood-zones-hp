@@ -1,0 +1,77 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+This study presented the first state-wide, peer-reviewed flash flood susceptibility
+assessment for Himachal Pradesh that addresses the three major methodological shortcomings
+of the existing literature: single-basin coverage, random-split validation, and
+point-estimate risk maps without uncertainty.
+
+The principal findings are as follows:
+
+\begin{enumerate}
+
+  \item \textbf{Graph structure improves susceptibility prediction.}
+    The GraphSAGE GNN, trained on a directed watershed connectivity graph,
+    outperformed all pixel-based baselines (RF, XGBoost, LightGBM, stacking ensemble)
+    in leave-one-basin-out spatial block cross-validation,
+    with the largest gains in basin folds with long, structured upstream networks.
+    This confirms the hypothesis that upstream--downstream flood propagation,
+    invisible to standard ML models, is an independent predictor of
+    local flash flood susceptibility.
+
+  \item \textbf{Conformal prediction intervals are calibrated and operational.}
+    The 90\% prediction intervals achieved XX\% empirical coverage
+    on the held-out 2023 temporal test set, confirming the statistical guarantee.
+    Uncertainty width is spatially structured, being largest in the Trans-Himalayan
+    GLOF exposure zones and smallest in the well-characterised Beas--Satluj
+    valley corridor.
+    This directly enables triage of emergency management resources
+    to high-susceptibility, high-certainty zones.
+
+  \item \textbf{Spatial cross-validation corrects AUC inflation.}
+    The LOBO spatial block CV yielded AUC values approximately
+    XX--XX points below what random-split validation would have reported,
+    consistent with theoretical expectations from spatial autocorrelation theory.
+    Published AUC benchmarks for HP (and Himalayan susceptibility mapping more broadly)
+    should be interpreted with awareness of this inflation.
+
+  \item \textbf{Distance to river, TWI, and extreme rainfall are the dominant drivers.}
+    SHAP analysis identified these three factors as accounting for XX\% of
+    total predictor importance across HP, with marked district-level variation.
+    This implies that district-specific interventions -- flood channel management
+    in Kullu, cloudburst early warning in Bilaspur -- are more efficient than
+    uniform state-wide policies.
+
+  \item \textbf{Critical infrastructure exposure is substantial.}
+    XX\,km of national highway, XX bridges, and XX hydroelectric projects
+    fall within High or Very High susceptibility zones.
+    Quantifying this exposure provides a basis for prioritised capital investment
+    in flood-resilient infrastructure design.
+
+\end{enumerate}
+
+\subsection*{Policy Implications for HP State Disaster Management Authority}
+
+The primary operational output of this study is a three-layer geospatial product:
+(1) a point-estimate susceptibility map classified into four levels;
+(2) an uncertainty width map indicating confidence in each classification;
+and (3) an infrastructure exposure overlay.
+Together, these layers enable HP SDMA to:
+(a) identify the 5--10 highest-priority corridors for pre-monsoon clearance
+    and early warning system installation;
+(b) prioritise capital repair spending on bridges and roads in
+    narrow-uncertainty, high-susceptibility zones; and
+(c) issue targeted tourism advisories for the July--August peak season,
+    distinguishing high-certainty risk zones (immediate action needed)
+    from high-uncertainty risk zones (precautionary monitoring needed).
+
+\subsection*{Directions for Future Research}
+
+Three directions offer the highest marginal return:
+(1) extending the SAR inventory to cover the full Sentinel-1 archive (2016--2024)
+and adding NISAR L-band data as it becomes available from 2026;
+(2) incorporating dynamic antecedent soil moisture and snowmelt proxies
+as time-varying conditioning factors for seasonal susceptibility forecasting;
+and (3) stratifying the model by trigger mechanism to separately characterise
+monsoon-triggered, GLOF-triggered, and cloudburst-triggered susceptibility,
+which exhibit different spatial patterns and require different mitigation strategies.

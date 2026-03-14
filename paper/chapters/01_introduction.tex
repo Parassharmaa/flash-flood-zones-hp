@@ -1,0 +1,122 @@
+\section{Introduction}
+\label{sec:introduction}
+
+Flash floods are the dominant natural hazard in the Western Himalaya,
+accounting for the majority of disaster-related fatalities and economic losses
+across Himachal Pradesh (HP), Uttarakhand, and Jammu and Kashmir each monsoon season
+\citep{kumar2022hp, dixit2026nhess}.
+The 2023 HP monsoon season was particularly catastrophic: 404 confirmed fatalities,
+more than 4,700 roads damaged or blocked, and direct economic losses exceeding
+Rs.\ 9,905 crore (\$1.2 billion USD), making it one of the three most destructive
+flood seasons in Indian recorded history \citep{ndma2023, hiflodot2025}.
+These losses were concentrated along the Beas, Satluj, and Chenab valleys,
+where steep terrain, high seasonal precipitation, and dense infrastructure create
+exceptional compound hazard conditions.
+
+Flash flood susceptibility mapping (FFSM) provides the spatial risk baseline
+required for land-use planning, infrastructure protection, early warning system design,
+and emergency response allocation.
+Machine-learning (ML) methods have displaced traditional frequency-ratio and bivariate
+statistical approaches since approximately 2018
+\citep{abedi2021, bentivoglio2022review, ghosh2023karnali},
+with ensemble tree models (Random Forest, XGBoost, LightGBM) and their
+stacked combinations now representing the state of the art in AUC performance
+\citep{chen2023rules, kosi2025ml}.
+Despite this methodological progress, critical gaps persist,
+particularly in the Western Himalayan context.
+
+\subsection{Research Gaps}
+\label{sec:gaps}
+
+\paragraph{Gap 1 — No comprehensive peer-reviewed ML study for HP.}
+Only one peer-reviewed ML paper targets HP specifically:
+\citet{saha2023} mapped susceptibility for the Beas basin using
+Multivariate Adaptive Regression Splines (MARS) and RF, achieving AUC\,=\,0.88
+in a book chapter published with Springer.
+No journal article covers the full state or the climatologically distinct upper basins
+(Lahaul-Spiti, Kinnaur, upper Chamba).
+A CNN U-Net study (Research Square, 2025) remains a non-peer-reviewed preprint.
+The absence of a comprehensive, peer-reviewed benchmark for HP represents a clear
+publication gap.
+
+\paragraph{Gap 2 — Spatial autocorrelation in validation.}
+The overwhelming majority of susceptibility studies use random train-test splits,
+which ignore spatial autocorrelation and inflate AUC by 5--15\%
+\citep{valavi2019, roberts2017cross}.
+Spatial block cross-validation -- where geographically contiguous units form the test fold --
+has been advocated since at least 2017 but remains rarely applied in FFSM literature
+for the Indian Himalayan region.
+
+\paragraph{Gap 3 — No uncertainty quantification.}
+All published HP susceptibility maps produce a single probability estimate per pixel,
+conveying no information about prediction confidence.
+Decision-makers at HP SDMA are therefore unable to distinguish zones where
+the model is highly certain from zones where uncertainty is large.
+Conformal prediction \citep{angelopoulos2023conformal} provides
+statistically guaranteed coverage intervals and is directly applicable to
+pre-trained ML classifiers, yet no FFSM paper has applied it to produce
+coverage-guaranteed susceptibility intervals.
+
+\paragraph{Gap 4 — Absence of graph-based spatial dependencies.}
+Standard ML approaches treat every pixel or catchment as conditionally independent
+given the conditioning factors, ignoring the hydrological reality that an
+extreme-runoff event in an upstream catchment physically elevates flood risk
+in all downstream catchments through increased channel discharge
+\citep{bentivoglio2022review}.
+Graph Neural Networks (GNNs) are ideally suited to encode this structure:
+nodes represent sub-watersheds, directed edges encode river connectivity,
+and message-passing aggregates upstream state into downstream risk predictions.
+No published flash flood susceptibility paper applies GNNs as of early 2026.
+
+\paragraph{Gap 5 — Cloud-contaminated or absent flood inventories.}
+Most HP studies rely on documentary records (NDMA, local government) that are
+spatially imprecise and temporally incomplete.
+Sentinel-1 Synthetic Aperture Radar (SAR) operates independently of cloud cover,
+making it uniquely suitable for monsoon-season flood mapping
+\citep{nagamani2024sar}.
+A multi-year, SAR-derived, standardised flood inventory for HP has not been published.
+
+\subsection{Objectives and Contributions}
+\label{sec:objectives}
+
+This study addresses all five gaps through the following specific contributions:
+
+\begin{enumerate}
+  \item \textbf{Multi-year SAR flood inventory.}
+    We construct the first systematic, multi-temporal Sentinel-1 SAR flood inventory
+    for HP (2018--2024), processed in Google Earth Engine using standardised
+    change-detection methodology and combined with the HiFlo-DAT historical database.
+
+  \item \textbf{Graph Neural Network susceptibility model.}
+    We build a directed watershed connectivity graph for HP and train a
+    GraphSAGE \citep{hamilton2017graphsage} model on it,
+    capturing upstream--downstream flood propagation structure that
+    pixel-based models cannot represent.
+    This is, to our knowledge, the first application of GNNs to FFSM.
+
+  \item \textbf{Conformal prediction intervals.}
+    We apply split-conformal prediction (MAPIE; \citealt{taquet2022mapie})
+    to the best-performing model, producing susceptibility maps with
+    statistically guaranteed 90\% coverage intervals for the first time in FFSM.
+
+  \item \textbf{Spatial block cross-validation.}
+    All models are evaluated using leave-one-basin-out spatial block CV
+    (five folds: Beas, Satluj, Chenab, Ravi, Yamuna),
+    providing bias-corrected AUC, F1, and Cohen's Kappa estimates.
+
+  \item \textbf{State-wide risk assessment with infrastructure overlay.}
+    We produce the first comprehensive, peer-reviewed flash flood susceptibility map
+    covering all five major HP river basins
+    and quantify exposure of roads, bridges, hydroelectric installations,
+    and tourist facilities to high-susceptibility zones.
+\end{enumerate}
+
+The remainder of this paper is organised as follows.
+Section~\ref{sec:study_area} describes the study area.
+Section~\ref{sec:data_methods} details data sources, preprocessing,
+and the ML and GNN methods.
+Section~\ref{sec:results} presents model performance, susceptibility maps,
+conformal coverage analysis, and SHAP factor importance.
+Section~\ref{sec:discussion} discusses the contribution of graph structure to accuracy,
+uncertainty communication for SDMA, and study limitations.
+Section~\ref{sec:conclusion} summarises key findings and policy implications.

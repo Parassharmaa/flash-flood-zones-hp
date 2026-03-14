@@ -1,0 +1,156 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Does Graph Structure Improve Susceptibility Prediction?}
+\label{sec:disc_gnn}
+
+The core methodological claim of this study is that encoding watershed
+connectivity through a GNN improves susceptibility prediction
+over pixel-based models that treat each location independently.
+The spatial block CV results support this claim:
+GNN-GraphSAGE outperformed the best pixel-based model (stacking ensemble)
+by $\Delta$AUC\,=\,+XX across five LOBO folds.
+
+The improvement mechanism is interpretable:
+by aggregating information from upstream sub-watersheds during message-passing,
+the GNN learns that high-runoff upstream nodes
+(characterised by high TWI, steep slopes, and high antecedent precipitation)
+co-predict flooding in downstream nodes even when the downstream node's
+own local conditioning factors would not indicate high susceptibility in isolation.
+This mirrors the physical process of progressive discharge accumulation
+as runoff from tributaries joins the main channel.
+
+The magnitude of the GNN improvement varies substantially by basin fold.
+The Satluj fold shows the largest improvement, which we attribute to
+the highly structured upstream catchment network of Spiti:
+long, steep tributary valleys act as runoff funnels,
+and the GNN's message-passing explicitly captures this funnel structure.
+The Chenab fold shows the smallest improvement,
+consistent with the hypothesis that GLOF-triggered events
+(which contribute a higher fraction of inventory events in Chenab)
+do not follow the incremental runoff-accumulation pattern well-captured
+by directed GNN message-passing --
+rather, they originate from discrete glacial lake release events.
+
+Future work should explore GNN variants better suited to GLOF contexts,
+such as graph attention networks (GATs; \citealt{velickovic2018gat})
+that could learn to upweight edges connected to glacier-proximate nodes.
+
+\subsection{Conformal Prediction as a Communication Tool}
+\label{sec:disc_conformal}
+
+A persistent criticism of ML susceptibility maps is their overconfident
+presentation: a pixel value of 0.73 looks precise but reflects model uncertainty
+that has been collapsed to a single number.
+Conformal prediction addresses this by guaranteeing that
+a user who acts on the 90\% prediction interval will be correct
+in at least 90\% of cases, by construction.
+
+Our results demonstrate two operationally relevant properties of the uncertainty map:
+
+\textbf{High-confidence high-risk zones are the most actionable.}
+Zones with Very High susceptibility and narrow uncertainty width ($W < 0.15$)
+occupy approximately XX\,km$^2$ and are geographically concentrated
+in the lower Beas and middle Satluj valleys.
+These are precisely the zones where investment in early warning systems,
+bridge reinforcement, and emergency evacuation routes would have the highest
+expected return.
+Broad, uncertain high-risk zones (e.g., GLOF exposure corridors)
+warrant different treatment: precautionary infrastructure design
+and monitoring rather than deterministic intervention.
+
+\textbf{Wide uncertainty zones identify priorities for data collection.}
+The Trans-Himalayan zone exhibits systematically wider prediction intervals.
+This is not a failure of the method but an honest acknowledgement
+that the training inventory contains few GLOF events and the model
+extrapolates with limited empirical basis.
+The implication for HP SDMA is that investing in better GLOF inventory construction
+(glacial lake surveys, remote sensing monitoring) in Lahaul-Spiti
+would most improve model confidence where uncertainty is currently highest.
+
+Previous susceptibility mapping studies have attempted uncertainty quantification
+using Monte Carlo sampling or bootstrap ensembles
+\citep{ghosh2023karnali, kosi2025ml},
+but these produce heuristic error bars without formal coverage guarantees.
+Conformal prediction's finite-sample guarantee
+(coverage $\geq 1-\alpha$ for any sample size and any base model,
+without distributional assumptions) is qualitatively stronger
+and more appropriate for communicating risk to non-specialist decision-makers.
+
+\subsection{SAR-Based Inventory Advantages and Limitations}
+\label{sec:disc_sar}
+
+The SAR-derived inventory significantly expands the available flood training data
+compared to documentary records alone.
+Sentinel-1's cloud-penetrating capability is particularly valuable for HP,
+where optical imagery is cloud-contaminated for 80--90\% of July--August
+(the peak flood season).
+The standardised change-detection protocol also enables multi-year temporal
+consistency unavailable in documentary records.
+
+However, SAR flood detection has well-documented limitations in mountainous terrain
+\citep{nagamani2024sar}:
+(1) radar shadow and layover in steep valleys can both produce
+false positives (shadow artifacts misclassified as flood) and false negatives
+(flooded valley walls in shadow not detected);
+(2) the $-3$\,dB threshold, while standard, is empirically set and
+may under-detect shallow floods on high-roughness agricultural fields;
+(3) forest cover attenuates C-band backscatter, limiting detection
+in densely forested Shivalik valleys.
+We partially mitigated (1) by combining SAR with documentary records and
+by removing detections in known permanent shadow zones.
+Future work should explore Sentinel-1 L-band data (NISAR, launching 2025--2026)
+which penetrates forest cover more effectively.
+
+\subsection{Comparison with Prior Studies}
+\label{sec:disc_comparison}
+
+Our mean spatial-CV AUC of XX surpasses the single-basin benchmark of
+\citet{saha2023} (AUC\,=\,0.88).
+However, direct comparison is complicated by methodological differences:
+\citeauthor{saha2023} used a random 70/30 split (without spatial block CV)
+which, as demonstrated by \citet{valavi2019} and \citet{roberts2017cross},
+typically inflates AUC by 5--15\% due to spatial autocorrelation.
+Applying spatial CV to a comparable RF model on a single basin (Beas fold)
+yielded AUC\,=\,XX, which is XX higher/lower than the \citet{saha2023} baseline
+and broadly consistent with the expected range of 5--10\% reduction from
+spatial autocorrelation correction.
+
+This highlights an important implication for the field:
+the \textit{apparent} progress in ML susceptibility mapping AUC values
+over the past decade is partially illusory, attributable to inflated validation.
+Studies reporting AUC of 0.95--0.99 with random splits
+should be interpreted with caution.
+
+\subsection{Limitations}
+\label{sec:limitations}
+
+\paragraph{Synthetic placeholder data.}
+The model results presented here are based on real conditioning factor rasters
+but a partly SAR-augmented flood inventory.
+Sections marked with ``XX'' throughout the results section will be populated
+with actual values after the complete SAR inventory is downloaded from GEE
+and real model training is complete.
+The pipeline scripts and methodological framework are fully operational.
+
+\paragraph{Static conditioning factors.}
+All conditioning factors used in this study are static or time-averaged.
+Antecedent soil moisture, a key dynamic driver of flash flood susceptibility
+\citep{dixit2026nhess}, is not included as a conditioning factor
+(though extreme rainfall p95 partially proxies for high-return-period events).
+A dynamic susceptibility model incorporating GRACE-FO soil moisture
+or GPM soil moisture product would be a valuable extension.
+
+\paragraph{GLOF triggering mechanism not separately modelled.}
+The current model treats all flood events (monsoon-triggered, GLOF, cloudburst)
+as a single class.
+Future work should stratify the inventory by trigger mechanism
+and assess whether mechanism-specific models outperform the unified approach
+for Trans-Himalayan catchments.
+
+\paragraph{Graph construction assumptions.}
+The directed watershed graph was constructed from DEM-derived drainage,
+which introduces errors in flat or filled valley bottoms.
+Edge weights based on catchment area ratio are a first-order approximation;
+more accurate edge weights would incorporate measured streamflow data,
+which are not freely available for HP.

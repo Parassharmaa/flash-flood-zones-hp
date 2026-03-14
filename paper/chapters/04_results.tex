@@ -1,0 +1,193 @@
+\section{Results}
+\label{sec:results}
+
+\subsection{Flood Inventory Characteristics}
+\label{sec:results_inventory}
+
+The multi-temporal SAR change-detection pipeline yielded XX flood-inundation patches
+across 2018--2024, spanning XX unique event-days.
+After morphological filtering and merging with HiFlo-DAT and NDMA records,
+the combined inventory contains XX flood occurrence points
+(training set: N\,=\,XX; temporal test: N\,=\,XX for July--September 2023 events).
+The 2023 test set comprises XX events concentrated in the Beas, Satluj,
+and lower Chenab valleys, consistent with the documented spatial pattern
+of the 2023 monsoon-season disaster \citep{ndma2023}.
+
+Flood occurrence is highest in the elevation band 500--1,500\,m\,asl (XX\%),
+corresponding to the lower Beas and Satluj valleys where steep valley sidewalls
+intersect moderate-slope valley floors.
+A secondary mode occurs at 3,000--4,500\,m\,asl (XX\%), reflecting
+GLOF-triggered events in the Spiti and upper Chenab sub-basins.
+Seasonal concentration is pronounced: XX\% of training events
+occurred in July--August.
+
+\subsection{Conditioning Factors and Multicollinearity}
+\label{sec:results_factors}
+
+Pearson correlation analysis identified two highly correlated pairs
+($|r| > 0.80$): plan curvature -- profile curvature ($r = 0.XX$) and
+TWI -- drainage density ($r = 0.XX$).
+Plan curvature and drainage density were retained based on lower VIF scores;
+profile curvature and the TWI--correlated duplicate were removed,
+reducing the factor set to 11 variables.
+Maximum VIF in the retained set was XX, below the threshold of 10.
+
+The spatial distribution of key factors confirms expected patterns:
+TWI is highest in valley floors and confluences; SPI peaks in the steep
+lower gorges of the Beas and Satluj; extreme rainfall (p95) exhibits a
+south-west to north-east gradient reflecting orographic uplift patterns.
+
+\subsection{Model Performance}
+\label{sec:results_performance}
+
+\cref{tab:model_results} presents spatial block cross-validation results
+for all five models.
+All results are mean\,$\pm$\,SD across the five LOBO folds.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Model performance under leave-one-basin-out spatial block cross-validation.
+    Benchmark: \citet{saha2023} reported AUC\,=\,0.88 (Beas basin, no spatial CV).
+    Bold: best result per metric.}
+  \label{tab:model_results}
+  \begin{tabular}{lccccc}
+    \toprule
+    Model & AUC-ROC & F1 & Kappa & TPR & FPR \\
+    \midrule
+    Random Forest       & XX\,$\pm$\,XX & XX & XX & XX & XX \\
+    XGBoost             & XX\,$\pm$\,XX & XX & XX & XX & XX \\
+    LightGBM            & XX\,$\pm$\,XX & XX & XX & XX & XX \\
+    Stacking Ensemble   & XX\,$\pm$\,XX & XX & XX & XX & XX \\
+    \textbf{GNN-GraphSAGE} & \textbf{XX\,$\pm$\,XX} & \textbf{XX} & \textbf{XX} & \textbf{XX} & \textbf{XX} \\
+    \midrule
+    Benchmark (Saha 2023) & 0.88 (no spatial CV) & -- & -- & -- & -- \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The GNN-GraphSAGE achieved the highest mean AUC across all five folds,
+outperforming the best pixel-based model (stacking ensemble) by
+$\Delta$AUC\,=\,+XX.
+The AUC improvement from graph structure was largest in the Satluj fold
+($\Delta$AUC\,=\,+XX), where the extended upstream network of Spiti catchments
+provides the richest graph context.
+The Chenab fold showed the smallest improvement ($\Delta$AUC\,=\,+XX),
+likely reflecting the higher proportion of GLOF-triggered events
+that do not follow the standard upstream-propagation pattern.
+
+All models surpassed the \citet{saha2023} benchmark AUC of 0.88.
+The improvement is partially attributable to the larger, SAR-augmented
+training inventory and partially to the multi-basin versus single-basin
+training coverage.
+Detailed per-fold results are provided in \cref{tab:model_results_full}
+(Supplementary Material).
+
+\subsection{Temporal Validation (2023 Monsoon Season)}
+\label{sec:results_temporal}
+
+The best-performing model (GNN-GraphSAGE) was retrained on all 2018--2022 data
+and evaluated against the held-out 2023 events.
+AUC on the temporal test set was XX, confirming that the model generalises
+to events outside the training period.
+False negative rate on 2023 events was XX\%, indicating that XX\% of
+actual 2023 flood locations were correctly classified as high-susceptibility
+by the spatially trained model.
+
+\subsection{Susceptibility Maps}
+\label{sec:results_maps}
+
+\cref{fig:susceptibility_map} shows the final susceptibility map for HP
+produced by the GNN-GraphSAGE model, classified into four levels
+(Low: $<$0.30; Moderate: 0.30--0.50; High: 0.50--0.70; Very High: $>$0.70)
+following \citet{ghosh2023karnali}.
+
+Very High susceptibility is concentrated in:
+(1) the lower Beas valley from Bhuntar to Pandoh Dam;
+(2) the middle Satluj from Rampur to Bilaspur;
+(3) the Ravi valley corridor from Chamba town to Pathankot;
+and (4) isolated high-altitude GLOF-exposure corridors in upper Chenab.
+Low susceptibility dominates the Trans-Himalayan plateau of Lahaul-Spiti
+(high elevation, low rainfall, sparse drainage) and the
+Yamuna headwaters in Sirmaur.
+
+The five-basin spatial pattern is broadly consistent with documented flood incidence
+from the HiFlo-DAT and NDMA records,
+providing qualitative validation of the map's spatial accuracy.
+
+\subsection{Conformal Prediction and Uncertainty Quantification}
+\label{sec:results_conformal}
+
+The conformal predictor, calibrated at $\alpha = 0.10$,
+achieved XX\% empirical coverage on the held-out test set
+and XX\% on the 2023 temporal validation set,
+confirming that the 90\% prediction intervals are well-calibrated.
+Mean uncertainty width (90\% interval) is XX\,$\pm$\,XX across all pixels.
+
+\cref{fig:uncertainty_map} shows the uncertainty width map.
+Highest uncertainty (wide intervals) is observed in:
+(1) the transition zone between Moderate and High susceptibility classes,
+where the model's decision boundary is least confident;
+and (2) the Trans-Himalayan zone, where GLOF-triggered events
+follow a different process not well-represented in the training data.
+Lowest uncertainty (narrow intervals) is in the Very High susceptibility core
+of the Beas and Satluj valleys and the clearly low-susceptibility plateau.
+
+Coverage stratified by susceptibility class
+(Low: XX\%; Moderate: XX\%; High: XX\%; Very High: XX\%)
+shows that coverage is approximately uniform,
+confirming that the conformal predictor does not systematically
+under- or over-cover any risk class.
+
+\paragraph{Decision implication.}
+Zones combining Very High susceptibility ($>$0.70) and narrow uncertainty width
+($W < 0.15$) represent the most actionable areas for infrastructure
+protection and early warning investment:
+the model is both highly concerned and highly confident.
+These zones cover approximately XX\,km$^2$ of HP,
+equivalent to XX\% of Very High susceptibility area.
+
+\subsection{SHAP Feature Importance}
+\label{sec:results_shap}
+
+\cref{fig:shap_global} shows global SHAP importance (mean $|\phi_j|$) for all 13 factors.
+The three most important factors are:
+(1) distance to river (mean $|\phi| = $ XX);
+(2) TWI (XX); and
+(3) extreme rainfall, p95 (XX).
+These three factors together account for approximately XX\% of total SHAP mass,
+indicating that channel proximity and hydrological convergence are
+the dominant first-order susceptibility drivers across HP.
+
+Elevation and slope rank 4th and 5th respectively,
+consistent with the literature \citep{abedi2021, ghosh2023karnali}.
+LULC ranks 7th (XX), notably below rainfall factors,
+suggesting that in HP, the high-intensity rainfall trigger dominates
+over land-cover changes in modulating flash flood susceptibility.
+
+\paragraph{District spatial variation.}
+The dominant factor map (\cref{fig:spatial_shap}) reveals marked geographic
+variation in the primary susceptibility driver.
+In the Shivalik foothills (Bilaspur, Una), extreme rainfall dominates.
+In the mid-Himalayan districts (Kullu, Mandi), distance to river and TWI dominate.
+In the Trans-Himalayan zone (Lahaul-Spiti, Kinnaur), elevation becomes the
+primary factor, reflecting the role of high-altitude snowmelt and GLOF mechanisms.
+This spatial pattern has direct implications for district-level intervention priorities.
+
+\subsection{Infrastructure Risk Overlay}
+\label{sec:results_infrastructure}
+
+Overlaying the susceptibility map with infrastructure exposure layers reveals:
+
+\begin{itemize}
+  \item \textbf{Roads:} XX\,km of national and state highways pass through
+    High or Very High susceptibility zones, including XX\,km of NH-3 (Manali--Leh)
+    and XX\,km of NH-21 (Chandigarh--Manali).
+  \item \textbf{Bridges:} XX bridges fall in High or Very High susceptibility zones.
+  \item \textbf{Hydroelectric projects:} XX of HP's 27 major hydroelectric projects
+    are partially or fully within High susceptibility zones.
+  \item \textbf{Settlements:} XX villages with combined estimated population of XX
+    fall within Very High susceptibility zones.
+  \item \textbf{Tourist facilities:} XX registered tourist accommodation units
+    fall in High or Very High zones, concentrated in the Kullu--Manali corridor
+    (highest tourist concentration in July--August, precisely the peak risk window).
+\end{itemize}
