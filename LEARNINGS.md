@@ -114,12 +114,22 @@ Benchmark: Saha et al. 2023 (AUC=0.88) — target to beat.
 
 ## Pipeline Status (2026-03-14)
 
-### Completed
-- Full pipeline runs on synthetic data (scripts 07-12 all pass)
-- Paper PDF compiles cleanly (2.12 MB, tectonic)
-- DEM downloading from Copernicus GLO-30 AWS (10/16 tiles as of now)
-- LULC tiles complete (4 tiles, ESA WorldCover)
-- GEE tasks running (user submitted, 2/8 failed due to HH polarisation)
+### Completed (Session 2)
+- All 16 DEM tiles downloaded and merged to dem_hp.tif (15020×12865px, UTM 43N)
+- All terrain factors computed: slope, aspect, plan/profile curvature, TWI, SPI, TRI, distance_to_river
+- Watershed graph: 460 nodes, 1700 directed edges (20km regular grid proxy — pysheds fallback)
+- LULC: 4 ESA WorldCover 2021 tiles merged to lulc_hp.tif
+- SoilGrids clay: clay_0_30cm_hp.tif downloaded (WCS 1.0.0, clay_0-5cm_mean)
+- Factor stack: 11 bands, BigTIFF, 15020×12865 px (real terrain + LULC + soil; rainfall pending GEE)
+- Conformal prediction: coverage 93.1% @ α=0.10 (valid); susceptibility maps written (773MB each)
+- SHAP analysis: global importance, dependence plots, spatial factor map (downsampled 1/30)
+- Paper PDF compiles cleanly (1.98 MB)
+- Full pipeline scripts 04–12 all complete without errors
+
+### Performance Fixes (Session 2)
+- `10_conformal_prediction.py`: downsample TIFs 1/10 before matplotlib imshow (was hanging)
+- `11_shap_analysis.py`: compute spatial SHAP map at 1/30 scale (1.9M → 21k pixels)
+- `generate_susceptibility_map`: processes in 256-row blocks for memory efficiency (BigTIFF)
 
 ### GEE Issues & Fixes
 - **Error**: `Image.select: Band pattern 'VV' did not match any bands. Available bands: [HH, HV, angle]`
@@ -127,7 +137,7 @@ Benchmark: Saha et al. 2023 (AUC=0.88) — target to beat.
   - **Fix**: Added `.filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VV'))` to `getS1()`
   - **Action**: User must cancel failed tasks and re-run with updated script
 
-### Key Code Fixes This Session
+### Key Code Fixes (Session 1)
 - Fixed DEM download URL: OpenTopography → Copernicus AWS S3
 - Fixed sys.path in all scripts (parent not parent.parent)
 - Fixed date parsing in flood inventory (year only, not YYYYMMDD)
@@ -135,16 +145,11 @@ Benchmark: Saha et al. 2023 (AUC=0.88) — target to beat.
 - Added `distance_to_river` terrain factor (was in docs but not implemented)
 - Fixed `rainfall_extreme` filename (max_monthly not p95)
 
-## Next Steps (Priority Order)
-1. Wait for DEM download to complete (remaining 6 tiles)
-2. User: cancel failed GEE tasks, re-run with updated script (VV filter)
-3. User: download GEE outputs from Google Drive → data/raw/flood_inventory/sar/ and data/raw/rainfall/
-4. Run `uv run python scripts/04_preprocess_terrain.py` (needs all 16 DEM tiles)
-5. Run `uv run python scripts/05_watershed_delineation.py`
-6. Run `uv run python scripts/06_assemble_factors.py`
-7. Run `uv run python scripts/07_build_flood_inventory.py` (will use real SAR TIFs)
-8. Run `uv run python scripts/08_train_baseline_models.py`
-9. Run `uv run python scripts/09_train_gnn.py`
-10. Run `uv run python scripts/10_conformal_prediction.py`
-11. Run `uv run python scripts/11_shap_analysis.py`
-12. Update paper XX placeholders with real results
+## Next Steps (Priority Order — BLOCKING on GEE data)
+1. **User: cancel all failed GEE tasks, re-run** `scripts/03_gee_script.js` (with VV filter) in GEE Code Editor
+2. **User: download GEE outputs from Google Drive** → `data/raw/flood_inventory/sar/` (flood_*.tif) + `data/raw/rainfall/` (rainfall_*.tif)
+3. Re-run `uv run python scripts/06_assemble_factors.py` (will pick up rainfall_mean + rainfall_extreme)
+4. Re-run `uv run python scripts/07_build_flood_inventory.py` (will use real SAR TIFs instead of synthetic)
+5. Re-run scripts 08–12 with real flood inventory data
+6. Update paper `XX` placeholders in `paper/chapters/04_results.tex` with real AUC/F1/Kappa values
+7. Abstract needs real numbers too
