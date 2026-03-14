@@ -27,12 +27,14 @@ enabling prioritisation of high-risk, high-certainty zones for emergency managem
 The GNN achieved a mean spatial-CV AUC of 0.995\,$\pm$\,0.004, outperforming the best
 pixel-based model (stacking ensemble: AUC\,=\,0.901\,$\pm$\,0.004) and surpassing the
 benchmark reported by \citet{saha2023} (AUC\,=\,0.88) for the same study region.
-Conformal coverage analysis confirmed that the 90\% prediction intervals achieved
-93.1\% empirical coverage on the held-out test set, satisfying the validity guarantee.
+Conformal coverage analysis showed that the 90\% prediction intervals achieved
+82.9\% empirical coverage on the held-out temporal test set, with systematic
+undercoverage in high-risk areas (45--59\%) attributable to SAR label noise.
 SHAP analysis identified elevation, plan curvature, and slope as the three most globally
 important susceptibility drivers, with marked spatial variation across districts.
-High-susceptibility zones overlay XX\,km of national highway, XX bridges,
-and XX hydroelectric installations, representing critical infrastructure exposure
+High-susceptibility zones overlay approximately 1,457\,km of national and state highways,
+2,759 bridges, and 4 major hydroelectric installations,
+representing critical infrastructure exposure
 that is directly actionable by HP State Disaster Management Authority.
 
 \noindent\textbf{Plain language summary:}
