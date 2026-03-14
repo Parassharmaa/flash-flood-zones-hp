@@ -128,27 +128,27 @@ def download_soilgrids() -> None:
     """
     print("\nDownloading SoilGrids clay content (0-30cm)...")
 
-    # SoilGrids WCS endpoint
-    wcs_url = "https://maps.isric.org/mapserv?map=/map/clay.map"
-    params = {
-        "SERVICE": "WCS",
-        "VERSION": "2.0.1",
-        "REQUEST": "GetCoverage",
-        "COVERAGEID": "clay_0-30cm_mean",
-        "FORMAT": "image/tiff",
-        "SUBSET": f"X({HP_BBOX['xmin']},{HP_BBOX['xmax']})",
-        "SUBSETTING_CRS": "http://www.opengis.net/def/crs/EPSG/0/4326",
-        "OUTPUT_CRS": "http://www.opengis.net/def/crs/EPSG/0/4326",
-    }
-    # Add lat subset separately (SoilGrids uses Y for latitude)
-    params["SUBSET2"] = f"Y({HP_BBOX['ymin']},{HP_BBOX['ymax']})"
+    # SoilGrids WCS 1.0.0 — top 5cm clay fraction (proxy for 0-30cm average)
+    # Coverage ID from GetCapabilities: clay_0-5cm_mean
+    lon_min, lon_max = HP_BBOX["xmin"], HP_BBOX["xmax"]
+    lat_min, lat_max = HP_BBOX["ymin"], HP_BBOX["ymax"]
+    wcs_url = (
+        "https://maps.isric.org/mapserv?map=/map/clay.map"
+        "&SERVICE=WCS&VERSION=1.0.0&REQUEST=GetCoverage"
+        "&COVERAGE=clay_0-5cm_mean"
+        "&FORMAT=GTiff"
+        f"&BBOX={lon_min},{lat_min},{lon_max},{lat_max}"
+        "&CRS=EPSG:4326"
+        "&RESPONSE_CRS=EPSG:4326"
+        "&WIDTH=500&HEIGHT=500"
+    )
 
     dest = SOIL_DIR / "clay_0_30cm_hp.tif"
     if dest.exists():
         print(f"  Already exists: {dest.name}")
         return
     try:
-        resp = requests.get(wcs_url, params=params, timeout=120, stream=True)
+        resp = requests.get(wcs_url, timeout=120, stream=True)
         resp.raise_for_status()
         with open(dest, "wb") as f:
             for chunk in resp.iter_content(chunk_size=8192):
