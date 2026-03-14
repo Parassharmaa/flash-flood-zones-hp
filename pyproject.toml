@@ -1,0 +1,26 @@
+[project]
+name = "flash-flood-zones-hp"
+version = "0.1.0"
+description = "Flash Flood Zone Mapping and Risk Analysis in Himachal Pradesh"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=2.0",
+    "pandas>=2.2",
+    "geopandas>=1.0",
+    "rasterio>=1.4",
+    "scikit-learn>=1.5",
+    "matplotlib>=3.9",
+    "seaborn>=0.13",
+    "scipy>=1.14",
+    "shapely>=2.0",
+    "pyproj>=3.6",
+    "tqdm>=4.66",
+    "xgboost>=2.0",
+    "shap>=0.45",
+    "jupyter>=1.1",
+    "ipykernel>=6.29",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

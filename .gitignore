@@ -1,0 +1,34 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Large raster/GIS files
+*.tif
+*.tiff
+*.asc
+*.nc
+*.hdf
+*.h5
+
+# Shapefiles (binary components — keep .shp + .shx + .dbf in git only if small)
+*.sbn
+*.sbx
+*.cpg
+*.prj
+
+# PDFs (large)
+*.pdf
+
+# Jupyter / Python
+__pycache__/
+*.py[cod]
+*.ipynb_checkpoints/
+.env
+.venv/
+
+# Results (large outputs)
+results/
+
+# Raw data (add manually when needed)
+data/raw/
