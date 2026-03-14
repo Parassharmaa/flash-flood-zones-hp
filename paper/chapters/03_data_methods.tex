@@ -22,26 +22,29 @@ when optical imagery is systematically unavailable
 \citep{nagamani2024sar, bentivoglio2022review}.
 
 The detection methodology followed established SAR change-detection protocols
-\citep{martinis2018sar}:
-(1) pre-event and post-event imagery were composited to 10-day medians
-to reduce noise;
-(2) VV-polarisation backscatter was used (more stable over water than VH);
-(3) a $-3$\,dB change threshold identified pixels with significant backscatter
-reduction, indicative of specular reflection from inundated surfaces;
-(4) a focal-mode filter ($3{\times}3$ kernel) removed isolated pixels;
-(5) the JRC Global Surface Water mask \citep{pekel2016jrc} removed
-permanent water bodies; and
-(6) flood patches smaller than 0.54\,ha (6 connected pixels at 30\,m)
-were discarded as probable noise.
-Each detected event was assigned a date, trigger classification
-(monsoon/cloudburst/GLOF/uncertain), and basin attribution.
+\citep{martinis2018sar}, adapted for seasonal composite analysis:
+(1) A long-term dry-season reference composite (median of all VV scenes,
+November--February, 2016--2022) was computed per pixel to establish
+baseline non-flooded backscatter;
+(2) per-year monsoon composites (minimum VV backscatter, June--October)
+were computed to capture the lowest-backscatter (most flooded) state
+within each season;
+(3) a $-3$\,dB threshold on the monsoon-minus-reference difference image
+identified persistently inundated pixels;
+(4) the JRC Global Surface Water permanent water mask \citep{pekel2016jrc}
+removed lake and river channel pixels present in the dry-season reference;
+and (5) residual isolated pixels were removed using scipy binary morphological
+opening (structuring element: $3{\times}3$) applied post-download in Python.
+Only VV-polarisation scenes from Interferometric Wide (IW) swath mode were
+used; HH-polarisation acquisitions (a minority of Sentinel-1B passes over HP)
+were excluded to maintain radiometric consistency.
 
-The resulting inventory yielded XX flood inundation polygons spanning
-XX event-days from 2018 to 2024.
-Flood occurrence points were extracted at a density of one per 0.09\,km$^2$
-(one per 30\,m pixel) within each inundation polygon,
-subject to a minimum inter-point distance of 90\,m to avoid spatial
-pseudo-replication within a single flood event.
+The resulting inventory consists of six per-year seasonal flood extent rasters
+(training: 2018--2022; temporal test: 2023), each representing the union of
+pixels inundated at any point during the June--October monsoon season.
+Flood occurrence points were sampled from the inundated pixels at a spatial
+density of up to 500 random samples per year to maintain tractable inventory
+size while preserving spatial coverage across basins.
 
 \subsubsection{Historical Records (Supplementary)}
 \label{sec:historical_inventory}

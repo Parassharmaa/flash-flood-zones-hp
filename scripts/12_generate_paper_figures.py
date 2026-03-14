@@ -79,7 +79,7 @@ def fig_model_comparison() -> None:
     auc_lists   = [df[df["model"] == m]["auc"].values for m in model_order]
     colors      = ["#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7", "#DDA0DD", "#FF6B6B"][:len(model_order)]
 
-    bp = axes[0].boxplot(auc_lists, labels=model_order, patch_artist=True,
+    bp = axes[0].boxplot(auc_lists, tick_labels=model_order, patch_artist=True,
                           medianprops=dict(color="black", linewidth=2))
     for patch, color in zip(bp["boxes"], colors):
         patch.set_facecolor(color)
@@ -193,7 +193,7 @@ def fig_conformal_coverage() -> None:
         "Target Coverage":   f"{cov['target_coverage']:.0%}",
         "Achieved Coverage": f"{cov['achieved_coverage']:.1%}",
         "Mean Interval\nWidth": f"{cov['avg_interval_width']:.3f}",
-        "Valid?":            "✓ Yes" if cov.get("is_valid", True) else "✗ No",
+        "Valid?":            "Yes" if cov.get("is_valid", True) else "No",
     }
     axes[1].axis("off")
     y_pos = 0.85
