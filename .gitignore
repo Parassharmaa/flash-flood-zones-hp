@@ -34,8 +34,19 @@ results/
 !results/dashboard/*.geojson
 !results/dashboard/*.json
 
-# Raw data (add manually when needed)
+# Raw data — track small GeoJSON/JSON/CSV but not large rasters
 data/raw/
+!data/raw/boundaries/
+!data/raw/boundaries/*.geojson
+!data/raw/boundaries/*.json
+data/raw/boundaries/hp_rivers.geojson
+!data/raw/flood_inventory/
+!data/raw/flood_inventory/*.json
+!data/raw/infrastructure/
+!data/raw/infrastructure/*.geojson
+data/raw/infrastructure/roads.geojson
+data/raw/infrastructure/settlements.geojson
+!data/raw/rainfall/DOWNLOAD_INSTRUCTIONS.txt
 
 # Cache directories
 .cache/

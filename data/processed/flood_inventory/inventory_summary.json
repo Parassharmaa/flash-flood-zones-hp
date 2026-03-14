@@ -1,0 +1,10 @@
+{
+  "total_flood_points": 3000,
+  "training_flood": 2500,
+  "test_flood_2023": 500,
+  "training_nonflood": 12500,
+  "test_nonflood": 2500,
+  "nonflood_ratio": 5,
+  "buffer_m": 1000,
+  "note": "Replace PLACEHOLDER with real SAR inventory from GEE"
+}

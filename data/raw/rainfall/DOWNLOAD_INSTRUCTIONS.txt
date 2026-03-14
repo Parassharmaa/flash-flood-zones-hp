@@ -1,0 +1,12 @@
+GPM IMERG Rainfall — GEE Export
+================================
+Run: uv run python scripts/03_gee_exports.py
+
+Requires: earthengine authenticate (run once)
+
+Exports to Google Drive then download to data/raw/rainfall/
+
+Layers:
+  1. Mean annual precipitation 2001-2023
+  2. 95th percentile daily precipitation (extreme events)
+  3. Annual precipitation 2018-2024 (flood inventory period)

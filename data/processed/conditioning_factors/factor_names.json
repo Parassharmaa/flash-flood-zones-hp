@@ -1,0 +1,17 @@
+{
+  "factors": [
+    "elevation",
+    "slope",
+    "aspect",
+    "plan_curvature",
+    "profile_curvature",
+    "twi",
+    "spi",
+    "tri",
+    "distance_to_river",
+    "rainfall_mean",
+    "lulc",
+    "soil_clay"
+  ],
+  "n_factors": 12
+}

@@ -1,0 +1,8 @@
+{
+  "n_watersheds": 460,
+  "n_edges": 1700,
+  "mean_area_km2": 400.0,
+  "total_area_km2": 184000.0,
+  "min_elevation": 0.0,
+  "max_elevation": 5566.0
+}

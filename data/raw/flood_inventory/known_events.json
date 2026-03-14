@@ -1,0 +1,105 @@
+{
+  "source": "HiFlo-DAT + NDMA + Kumar 2022 + NHESS 2026",
+  "total_events": 16,
+  "training_events": [
+    {
+      "date": "2018-07-25",
+      "basin": "Beas",
+      "district": "Kullu",
+      "trigger": "cloudburst"
+    },
+    {
+      "date": "2018-08-18",
+      "basin": "Satluj",
+      "district": "Shimla",
+      "trigger": "monsoon"
+    },
+    {
+      "date": "2019-07-31",
+      "basin": "Beas",
+      "district": "Mandi",
+      "trigger": "cloudburst"
+    },
+    {
+      "date": "2019-08-14",
+      "basin": "Chenab",
+      "district": "Chamba",
+      "trigger": "monsoon"
+    },
+    {
+      "date": "2020-07-28",
+      "basin": "Beas",
+      "district": "Kullu",
+      "trigger": "cloudburst"
+    },
+    {
+      "date": "2021-07-26",
+      "basin": "Beas",
+      "district": "Kullu",
+      "trigger": "monsoon"
+    },
+    {
+      "date": "2021-08-17",
+      "basin": "Satluj",
+      "district": "Kinnaur",
+      "trigger": "monsoon"
+    },
+    {
+      "date": "2022-07-13",
+      "basin": "Beas",
+      "district": "Mandi",
+      "trigger": "cloudburst"
+    },
+    {
+      "date": "2022-08-24",
+      "basin": "Ravi",
+      "district": "Chamba",
+      "trigger": "monsoon"
+    },
+    {
+      "date": "2024-07-31",
+      "basin": "Beas",
+      "district": "Kullu",
+      "trigger": "cloudburst"
+    },
+    {
+      "date": "2024-08-01",
+      "basin": "Satluj",
+      "district": "Mandi",
+      "trigger": "monsoon"
+    }
+  ],
+  "test_events": [
+    {
+      "date": "2023-07-09",
+      "basin": "Beas",
+      "district": "Kullu",
+      "trigger": "cloudburst"
+    },
+    {
+      "date": "2023-07-14",
+      "basin": "Satluj",
+      "district": "Shimla",
+      "trigger": "monsoon"
+    },
+    {
+      "date": "2023-08-02",
+      "basin": "Beas",
+      "district": "Mandi",
+      "trigger": "cloudburst"
+    },
+    {
+      "date": "2023-08-13",
+      "basin": "Chenab",
+      "district": "Chamba",
+      "trigger": "monsoon"
+    },
+    {
+      "date": "2023-09-01",
+      "basin": "Satluj",
+      "district": "Kinnaur",
+      "trigger": "monsoon"
+    }
+  ],
+  "note": "2023 events held out as temporal validation set"
+}

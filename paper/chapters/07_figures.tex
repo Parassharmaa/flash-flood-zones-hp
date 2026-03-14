@@ -91,8 +91,9 @@
   \caption{%
     \textbf{Figure 7:} Global SHAP feature importance (mean $|\phi_j|$ across all
     training samples).
-    Distance to river, TWI, and extreme rainfall (max monthly) are the three
-    most important susceptibility drivers across Himachal Pradesh.
+    Elevation (0.184), plan curvature (0.116), and slope (0.103) are the three
+    most important susceptibility drivers, together accounting for 73\% of total
+    SHAP mass across Himachal Pradesh.
     Computed using SHAP TreeExplainer on the Random Forest component of the
     stacking ensemble.
   }
@@ -123,12 +124,13 @@
   \includegraphics[width=0.85\textwidth]{../results/paper_figures/fig10_conformal_coverage.png}
   \caption{%
     \textbf{Figure 10:} Conformal prediction coverage analysis.
-    \textit{Left:} Empirical coverage by susceptibility class.
-    Dashed line: target coverage (90\%).
-    All classes achieve coverage near or above target,
-    confirming interval calibration.
-    \textit{Right:} Summary metrics -- achieved coverage, mean interval width,
-    and validity check.
+    \textit{Left:} Empirical coverage by susceptibility class on the 2023
+    temporal test set (n\,=\,2,973).
+    Dashed line: target 90\% coverage.
+    Low susceptibility achieves 96.3\% coverage; High and Very High classes
+    are undercovered (45--59\%), attributable to SAR label noise in the high-risk regime.
+    \textit{Right:} Overall coverage (82.9\%), mean interval width (0.32),
+    and validity summary.
   }
   \label{fig:conformal_coverage}
 \end{figure}
