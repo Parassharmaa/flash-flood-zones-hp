@@ -23,6 +23,11 @@ import sys
 from pathlib import Path
 
 import numpy as np
+
+# pysheds 0.5 uses np.in1d which was removed in NumPy 2.0
+if not hasattr(np, "in1d"):
+    np.in1d = lambda ar1, ar2, **kw: np.isin(ar1, ar2, **kw).ravel()
+
 import rasterio
 from rasterio.enums import Resampling
 from rasterio.merge import merge
@@ -96,7 +101,7 @@ def compute_slope_aspect(dem_path: Path) -> tuple[Path, Path]:
         res = src.res[0]  # pixel size in metres (UTM)
 
     # Replace nodata
-    dem[dem == meta.get("nodata", -9999)] = np.nan
+    dem[dem == (meta.get("nodata") or -9999)] = np.nan
 
     # Gradient in x and y
     dy, dx = np.gradient(dem, res, res)
@@ -128,7 +133,7 @@ def compute_curvature(dem_path: Path) -> tuple[Path, Path]:
         meta = src.meta.copy()
         res = float(src.res[0])
 
-    nodata = float(meta.get("nodata", -9999))
+    nodata = float(meta.get("nodata") or -9999)
     dem[dem == nodata] = np.nan
 
     # Second-order derivatives using central differences
@@ -246,7 +251,7 @@ def compute_tri(dem_path: Path) -> Path:
     with rasterio.open(dem_path) as src:
         dem = src.read(1).astype(np.float32)
         meta = src.meta.copy()
-    nodata = float(meta.get("nodata", -9999))
+    nodata = float(meta.get("nodata") or -9999)
     dem[dem == nodata] = np.nan
 
     # TRI = mean absolute deviation from centre in 3×3 window

@@ -17,6 +17,11 @@ from pathlib import Path
 
 import geopandas as gpd
 import numpy as np
+
+# pysheds 0.5 uses np.in1d which was removed in NumPy 2.0
+if not hasattr(np, "in1d"):
+    np.in1d = lambda ar1, ar2, **kw: np.isin(ar1, ar2, **kw).ravel()
+
 import pandas as pd
 import rasterio
 from rasterio.features import shapes
@@ -60,41 +65,51 @@ def delineate_watersheds(dem_path: Path) -> gpd.GeoDataFrame:
             transform = src.transform
             crs       = src.crs
 
-        # Threshold: pixels with accumulation > threshold are stream channels
-        # MIN_CATCHMENT_AREA_KM2 → pixels
+        # Sample pour points: regular grid of stream cells spaced by target spacing
+        # Each pour point → one sub-watershed
+        acc_arr = np.array(acc)
         threshold_px = int((MIN_CATCHMENT_AREA_KM2 * 1e6) / (cell_size**2))
-        streams      = (acc > threshold_px).astype(np.uint8)
 
-        # Delineate catchments at stream junctions
-        # Find junction points (cells where multiple streams converge)
-        catchment_labels, n_catch = label(~streams.astype(bool))
-        print(f"  Found {n_catch} raw catchments (before area filter)")
+        # Pour points: stream pixels, sampled on regular grid to control density
+        spacing = max(1, int(np.sqrt(threshold_px)))
+        rows_idx, cols_idx = np.where(acc_arr > threshold_px)
+        # Subsample to regular grid
+        mask = ((rows_idx % spacing == 0) & (cols_idx % spacing == 0))
+        rows_idx, cols_idx = rows_idx[mask], cols_idx[mask]
+        print(f"  {len(rows_idx)} pour points sampled (spacing={spacing}px)")
 
-        # Convert to polygons
-        results = list(shapes(
-            catchment_labels.astype(np.int32),
-            mask=(catchment_labels > 0).astype(np.uint8),
-            transform=transform,
-        ))
-
+        # For each pour point, get catchment using pysheds
         features = []
-        for geom, val in results:
-            if int(val) == 0:
+        from rasterio.transform import rowcol, xy as rast_xy
+
+        for r, c in zip(rows_idx[:500], cols_idx[:500]):   # cap at 500
+            x, y = rasterio.transform.xy(transform, r, c)
+            try:
+                catch = grid.catchment(x, y, fdir=fdir, dirmap=dirmap, xytype='coordinate')
+                catch_mask = np.array(catch).astype(np.uint8)
+                area_px = int(catch_mask.sum())
+                area_km2 = area_px * (cell_size ** 2) / 1e6
+                if area_km2 < MIN_CATCHMENT_AREA_KM2 * 0.1:
+                    continue
+                results = list(shapes(catch_mask, mask=catch_mask, transform=transform))
+                for geom, _ in results:
+                    features.append({
+                        "geometry": shape(geom),
+                        "catchment_id": len(features),
+                        "area_km2": round(area_km2, 2),
+                    })
+            except Exception:
                 continue
-            poly = shape(geom)
-            area_km2 = poly.area / 1e6  # m² → km²
-            if area_km2 >= MIN_CATCHMENT_AREA_KM2 * 0.1:  # keep even small ones initially
-                features.append({
-                    "geometry": poly,
-                    "catchment_id": int(val),
-                    "area_km2": round(area_km2, 2),
-                })
+
+        print(f"  Found {len(features)} raw catchments (before area filter)")
+        if len(features) < 10:
+            raise ValueError(f"Too few catchments ({len(features)}), falling back")
 
         gdf = gpd.GeoDataFrame(features, crs=crs)
-        method = "pysheds D8"
+        method = "pysheds D8 pour-point"
 
-    except ImportError:
-        print("  pysheds not available — using elevation-based watershed proxy")
+    except (ImportError, ValueError, Exception) as e:
+        print(f"  pysheds catchment delineation failed ({e}) — using grid proxy")
         gdf, method = _simple_watershed_proxy(dem_path)
 
     # Filter by minimum area
@@ -216,8 +231,8 @@ def save_outputs(watersheds: gpd.GeoDataFrame, edges: pd.DataFrame) -> None:
     # Sparse adjacency matrix
     n = len(watersheds)
     id_to_idx = {wid: i for i, wid in enumerate(watersheds["watershed_id"])}
-    rows = [id_to_idx[s] for s in edges["source"] if s in id_to_idx]
-    cols = [id_to_idx[t] for t in edges["target"] if t in id_to_idx]
+    rows = [id_to_idx[s] for s in edges.get("source", []) if s in id_to_idx]
+    cols = [id_to_idx[t] for t in edges.get("target", []) if t in id_to_idx]
     data = np.ones(len(rows))
     from scipy.sparse import csr_matrix
     adj = csr_matrix((data, (rows, cols)), shape=(n, n))
