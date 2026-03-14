@@ -262,6 +262,58 @@ def compute_tri(dem_path: Path) -> Path:
     return tri_path
 
 
+def compute_distance_to_river(dem_path: Path) -> Path:
+    """
+    Euclidean distance (metres) from each pixel to nearest stream channel.
+    Streams defined by flow accumulation > threshold using pysheds.
+    Falls back to elevation-based channel approximation if pysheds unavailable.
+    """
+    print("Computing distance to river...")
+    from scipy.ndimage import distance_transform_edt
+
+    with rasterio.open(dem_path) as src:
+        meta = src.meta.copy()
+        cell_size = src.res[0]
+
+    try:
+        from pysheds.grid import Grid
+
+        grid    = Grid.from_raster(str(dem_path))
+        dem_arr = grid.read_raster(str(dem_path))
+
+        pit_filled = grid.fill_pits(dem_arr)
+        flooded    = grid.fill_depressions(pit_filled)
+        inflated   = grid.resolve_flats(flooded)
+
+        dirmap = (64, 128, 1, 2, 4, 8, 16, 32)
+        fdir   = grid.flowdir(inflated, dirmap=dirmap)
+        acc    = grid.accumulation(fdir, dirmap=dirmap)
+
+        # Channels: accumulation > 5 km² / cell_size²
+        threshold_px = int(5e6 / (cell_size**2))
+        is_channel   = (acc > threshold_px).astype(bool)
+
+    except ImportError:
+        # Fallback: low-elevation + high-accumulation proxy
+        with rasterio.open(dem_path) as src:
+            dem_arr = src.read(1).astype(np.float32)
+        # Approximate stream channels as lowest 5th percentile elevation
+        elev_thresh = np.nanpercentile(dem_arr[dem_arr > -9998], 5)
+        is_channel  = dem_arr < elev_thresh
+
+    # EDT: distance in pixels → multiply by cell_size for metres
+    dist_px  = distance_transform_edt(~is_channel)
+    dist_m   = (dist_px * cell_size).astype(np.float32)
+    dist_m   = np.where(~np.isfinite(dist_m), -9999, dist_m)
+
+    meta.update({"dtype": "float32", "nodata": -9999, "compress": "lzw"})
+    dist_path = TERRAIN_DIR / "distance_to_river.tif"
+    with rasterio.open(dist_path, "w", **meta) as dst:
+        dst.write(dist_m[np.newaxis, :, :])
+    print(f"  Distance to river → {dist_path}")
+    return dist_path
+
+
 def main() -> None:
     print("=" * 60)
     print("Phase 2: Terrain preprocessing")
@@ -277,9 +329,10 @@ def main() -> None:
     plan_path, profile_path = compute_curvature(dem_path)
     twi_path, spi_path      = compute_twi_spi(dem_path, slope_path)
     tri_path                = compute_tri(dem_path)
+    dist_path               = compute_distance_to_river(dem_path)
 
     outputs = [dem_path, slope_path, aspect_path, plan_path,
-               profile_path, twi_path, spi_path, tri_path]
+               profile_path, twi_path, spi_path, tri_path, dist_path]
     print(f"\nTerrain factors computed: {len(outputs)}")
     print("Next: run 05_watershed_delineation.py to build the GNN graph")
 

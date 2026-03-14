@@ -44,6 +44,7 @@ FACTOR_SOURCES = [
     ("twi",               TERRAIN_DIR / "twi.tif",               1),
     ("spi",               TERRAIN_DIR / "spi.tif",               1),
     ("tri",               TERRAIN_DIR / "tri.tif",               1),
+    ("distance_to_river", TERRAIN_DIR / "distance_to_river.tif", 1),
     # These are added after GEE download:
     ("rainfall_mean",     RAINFALL_DIR / "rainfall_mean_annual_gpm.tif", 1),
     ("rainfall_extreme",  RAINFALL_DIR / "rainfall_max_monthly_gpm.tif", 1),
