@@ -1,0 +1,11 @@
+{
+  "method": "PyTorch Geometric GraphSAGE (inductive LOBO)",
+  "n_nodes": 460,
+  "n_edges": 1700,
+  "gnn_layers": 3,
+  "hidden_dim": 64,
+  "epochs": 200,
+  "n_folds": 5,
+  "mean_auc_cv": 0.9783,
+  "std_auc_cv": 0.0171
+}

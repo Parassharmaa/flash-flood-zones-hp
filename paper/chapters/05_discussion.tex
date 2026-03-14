@@ -6,7 +6,7 @@
 
 Does adding watershed connectivity improve flood predictions?
 Our results say yes: the GNN outperformed the best pixel-based model
-by $\Delta$AUC\,=\,+0.094 across all five cross-validation folds.
+by $\Delta$AUC\,=\,+0.077 across all five cross-validation folds.
 
 The improvement mechanism is interpretable:
 by aggregating information from upstream sub-watersheds during message-passing,
@@ -106,7 +106,7 @@ However, direct comparison is complicated by methodological differences:
 \citeauthor{saha2023} used a random 70/30 split (without spatial block CV)
 which, as demonstrated by \citet{valavi2019} and \citet{roberts2017cross},
 typically inflates AUC by 5--15\% due to spatial autocorrelation.
-The GNN achieves 0.995 AUC under the same fold structure, substantially
+The GNN achieves 0.978 AUC under the same fold structure, substantially
 exceeding the prior benchmark while maintaining rigorous spatial hold-out.
 
 This highlights an important implication for the field:

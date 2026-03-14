@@ -61,7 +61,7 @@ All results are mean\,$\pm$\,SD across the five LOBO folds.
     XGBoost             & 0.890\,$\pm$\,0.005 & 0.533 & 0.436 & 0.548 & 0.067 \\
     LightGBM            & 0.893\,$\pm$\,0.006 & 0.571 & 0.469 & 0.657 & 0.097 \\
     Stacking Ensemble   & 0.901\,$\pm$\,0.004 & 0.511 & 0.424 & 0.449 & 0.049 \\
-    \textbf{GNN-GraphSAGE} & \textbf{0.995\,$\pm$\,0.004} & \textbf{--} & \textbf{--} & \textbf{--} & \textbf{--} \\
+    \textbf{GNN-GraphSAGE} & \textbf{0.978\,$\pm$\,0.017} & \textbf{--} & \textbf{--} & \textbf{--} & \textbf{--} \\
     \midrule
     Benchmark (Saha 2023) & 0.88 (no spatial CV) & -- & -- & -- & -- \\
     \bottomrule
@@ -70,7 +70,7 @@ All results are mean\,$\pm$\,SD across the five LOBO folds.
 
 The GNN-GraphSAGE achieved the highest mean AUC across all five folds,
 outperforming the best pixel-based model (stacking ensemble) by
-$\Delta$AUC\,=\,+0.094.
+$\Delta$AUC\,=\,+0.077.
 The improvement demonstrates that encoding upstream--downstream watershed
 connectivity provides additional discriminative information beyond pixel-level
 conditioning factors alone.

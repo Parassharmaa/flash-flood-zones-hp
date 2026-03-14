@@ -1,0 +1,6 @@
+model,fold,auc,f1,kappa,n_test
+GNN-GraphSAGE,basin_0,1.0,0.6667,0.5833,80
+GNN-GraphSAGE,basin_1,0.9862,0.986,0.5601,111
+GNN-GraphSAGE,basin_2,0.9625,0.5,0.481,82
+GNN-GraphSAGE,basin_3,0.9593,0.8519,0.772,77
+GNN-GraphSAGE,basin_4,0.9836,0.8615,0.804,110
