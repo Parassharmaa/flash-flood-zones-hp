@@ -24,7 +24,7 @@ from scipy.ndimage import label
 from shapely.geometry import shape, mapping
 from shapely.ops import unary_union
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent))
 from config import TERRAIN_DIR, GRAPH_DIR, HP_CRS_UTM  # noqa: E402
 
 

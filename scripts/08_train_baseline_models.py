@@ -32,7 +32,7 @@ from sklearn.metrics import (
 )
 from sklearn.preprocessing import LabelEncoder
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent))
 from config import (  # noqa: E402
     INVENTORY_DIR, FACTORS_DIR, GRAPH_DIR, MODELS_DIR, VALIDATION_DIR,
     RANDOM_SEED, N_ESTIMATORS, MAX_DEPTH, CV_FOLDS,

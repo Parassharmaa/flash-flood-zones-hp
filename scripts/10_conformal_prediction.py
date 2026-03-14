@@ -27,7 +27,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent))
 from config import (  # noqa: E402
     FACTORS_DIR, MODELS_DIR, MAPS_DIR, VALIDATION_DIR, INVENTORY_DIR,
     RANDOM_SEED, CONFORMAL_ALPHA,

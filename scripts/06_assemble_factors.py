@@ -27,7 +27,7 @@ import rasterio
 from rasterio.enums import Resampling
 from rasterio.warp import calculate_default_transform, reproject
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent))
 from config import (  # noqa: E402
     TERRAIN_DIR, FACTORS_DIR, GRAPH_DIR,
     LULC_DIR, RAINFALL_DIR, SOIL_DIR, RESULTS,

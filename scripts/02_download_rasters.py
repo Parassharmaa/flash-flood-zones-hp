@@ -59,38 +59,26 @@ def download_dem_copernicus() -> None:
     lats = range(math.floor(HP_BBOX["ymin"]), math.ceil(HP_BBOX["ymax"]))
     lons = range(math.floor(HP_BBOX["xmin"]), math.ceil(HP_BBOX["xmax"]))
 
-    base = "https://opentopography.s3.sdsc.edu/dataspace/OTDS.012021.4326.1/raster/"
+    # Copernicus GLO-30 on AWS S3 (public, no auth)
+    # URL pattern: .../Copernicus_DSM_COG_10_N30_00_E075_00_DEM/...tif
+    aws_base = "https://copernicus-dem-30m.s3.amazonaws.com"
 
     downloaded = 0
     for lat in lats:
         for lon in lons:
             lat_str = f"N{lat:02d}" if lat >= 0 else f"S{abs(lat):02d}"
             lon_str = f"E{lon:03d}" if lon >= 0 else f"W{abs(lon):03d}"
-            filename = f"Copernicus_DSM_COG_10_{lat_str}_00_{lon_str}_00_DEM.tif"
-            url = f"{base}{filename}"
+            stem = f"Copernicus_DSM_COG_10_{lat_str}_00_{lon_str}_00_DEM"
+            filename = f"{stem}.tif"
+            url = f"{aws_base}/{stem}/{filename}"
             dest = DEM_DIR / filename
             try:
                 download_file(url, dest, desc=f"DEM {lat_str}{lon_str}")
                 downloaded += 1
             except Exception as e:
                 print(f"  WARNING: could not download {filename}: {e}")
-                # Try SRTM fallback
-                _download_srtm_tile(lat, lon)
 
     print(f"  Downloaded {downloaded} DEM tiles to {DEM_DIR}")
-
-
-def _download_srtm_tile(lat: int, lon: int) -> None:
-    """SRTM 30m fallback via OpenTopography."""
-    # OpenTopography requires API key for bulk download
-    # Provide manual download instructions instead
-    note = DEM_DIR / f"MANUAL_DOWNLOAD_SRTM_{lat}_{lon}.txt"
-    note.write_text(
-        f"Manual download needed:\n"
-        f"  URL: https://srtm.csi.cgiar.org/srtmdata/\n"
-        f"  Tile: lat={lat}, lon={lon}\n"
-        f"  Or use: earthengine-based export (see scripts/03_gee_exports.py)\n"
-    )
 
 
 # ── LULC: ESA WorldCover 2021 ─────────────────────────────────────────────────

@@ -28,7 +28,7 @@ from rasterio.enums import Resampling
 from rasterio.merge import merge
 from rasterio.warp import calculate_default_transform, reproject
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent))
 from config import (  # noqa: E402
     DEM_DIR, TERRAIN_DIR, HP_BBOX, HP_CRS_UTM, HP_PIXEL_M, GRAPH_DIR
 )

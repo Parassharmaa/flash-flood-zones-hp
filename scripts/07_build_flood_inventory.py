@@ -23,7 +23,7 @@ import pandas as pd
 from shapely.geometry import Point, box
 from shapely.ops import unary_union
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent))
 from config import (  # noqa: E402
     FLOOD_DIR, INVENTORY_DIR, FACTORS_DIR, HP_BBOX, HP_CRS_UTM,
     NON_FLOOD_BUFFER_M, FLOOD_NON_FLOOD_RATIO, RANDOM_SEED,
@@ -50,9 +50,9 @@ def load_sar_inventory() -> gpd.GeoDataFrame:
     all_points = []
     for tif in sorted(tif_files):
         split = "test" if "_test_" in tif.stem else "train"
-        # Extract date from filename: flood_train_20180725
-        date_str = tif.stem.split("_")[-1]
-        date = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:]}"
+        # Extract year from filename: flood_train_2018 → "2018"
+        year_str = tif.stem.split("_")[-1]
+        date = f"{year_str}-07-01"   # approximate monsoon peak date
 
         with rasterio.open(tif) as src:
             data = src.read(1)

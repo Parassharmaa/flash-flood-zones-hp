@@ -23,7 +23,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent))
 from config import (  # noqa: E402
     GRAPH_DIR, MODELS_DIR, VALIDATION_DIR, FACTORS_DIR,
     RANDOM_SEED, GNN_HIDDEN_DIM, GNN_LAYERS, GNN_EPOCHS, GNN_LR,
