@@ -181,16 +181,19 @@ def add_shap_data(districts_out: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         return districts_out
 
     shap_df = pd.read_csv(SHAP_CSV)
-    # Expect columns: district, top_factor (or similar)
-    if "district" in shap_df.columns:
-        # Find column with highest SHAP values
-        factor_cols = [c for c in shap_df.columns if c != "district"]
-        if factor_cols:
-            shap_df["top_factor"] = shap_df[factor_cols].idxmax(axis=1)
-            shap_df["top_factor_importance"] = shap_df[factor_cols].max(axis=1).round(4)
-            shap_merge = shap_df[["district", "top_factor", "top_factor_importance"]].copy()
-            districts_out = districts_out.merge(shap_merge, on="district", how="left")
+    if "district" not in shap_df.columns:
+        return districts_out
 
+    # CSV already has top_factor; compute top_factor_importance from numeric cols
+    numeric_cols = [c for c in shap_df.columns if c not in ("district", "top_factor")]
+    numeric_df = shap_df[numeric_cols].apply(pd.to_numeric, errors="coerce")
+
+    if "top_factor" not in shap_df.columns:
+        shap_df["top_factor"] = numeric_df.idxmax(axis=1).str.replace("shap_", "")
+    shap_df["top_factor_importance"] = numeric_df.max(axis=1).round(4)
+
+    shap_merge = shap_df[["district", "top_factor", "top_factor_importance"]].copy()
+    districts_out = districts_out.merge(shap_merge, on="district", how="left")
     return districts_out
 
 
