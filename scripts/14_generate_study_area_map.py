@@ -242,13 +242,12 @@ def main() -> None:
                                 edgecolor="#555555", linewidth=0.6, zorder=1)
     axin.add_collection(india_col)
 
-    # Draw disputed territories (POK, Aksai Chin — claimed by India)
+    # Draw disputed territories (POK, Aksai Chin) as part of India
     disputed_rings = get_disputed_polygons()
     if disputed_rings:
         disp_patches = [MplPolygon(ring, closed=True) for ring in disputed_rings]
-        disp_col = PatchCollection(disp_patches, facecolor="#E8E8E8",
-                                   edgecolor="#888888", linewidth=0.5,
-                                   linestyle="dashed", zorder=1)
+        disp_col = PatchCollection(disp_patches, facecolor="#D5D5D5",
+                                   edgecolor="#555555", linewidth=0.6, zorder=1)
         axin.add_collection(disp_col)
 
     # HP highlight box
