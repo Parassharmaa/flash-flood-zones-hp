@@ -12,7 +12,7 @@ flood occurrence points from SAR-detected inundation
 (training set: N\,=\,2,500 from 2018--2022; temporal test: N\,=\,500 from 2023).
 Non-flood points were sampled at a 5:1 ratio with a 1\,km exclusion buffer,
 yielding 12,500 training and 2,500 test absence observations.
-The 2023 test set is concentrated in the Beas, Satluj,
+The 2023 test set is concentrated in the Beas, Sutlej,
 and lower Chenab valleys, consistent with the documented spatial pattern
 of the 2023 monsoon-season disaster \citep{ndma2023}.
 
@@ -37,7 +37,7 @@ TRI, distance to river, mean annual rainfall, land use/land cover, and soil clay
 
 The spatial distribution of key factors confirms expected patterns:
 TWI is highest in valley floors and confluences; SPI peaks in the steep
-lower gorges of the Beas and Satluj; mean annual rainfall exhibits a
+lower gorges of the Beas and Sutlej; mean annual rainfall exhibits a
 south-west to north-east gradient reflecting orographic uplift patterns.
 
 \subsection{Model Performance}
@@ -142,7 +142,7 @@ following \citet{ghosh2023karnali}.
 
 Very High susceptibility is concentrated in:
 (1) the lower Beas valley from Bhuntar to Pandoh Dam;
-(2) the middle Satluj from Rampur to Bilaspur;
+(2) the middle Sutlej from Rampur to Bilaspur;
 (3) the Ravi valley corridor from Chamba town to Pathankot;
 and (4) isolated high-altitude GLOF-exposure corridors in upper Chenab.
 Low susceptibility dominates the Trans-Himalayan plateau of Lahaul-Spiti
@@ -177,7 +177,7 @@ providing qualitative validation of the map's spatial accuracy.
     \textit{Left:} Point-estimate susceptibility (GNN-GraphSAGE).
     \textit{Centre:} Lower bound of the 90\% prediction interval.
     \textit{Right:} Uncertainty width (upper minus lower bound).
-    Narrow uncertainty in the Beas--Satluj valley corridor indicates high model
+    Narrow uncertainty in the Beas--Sutlej valley corridor indicates high model
     confidence; wide uncertainty in Trans-Himalayan zones reflects limited GLOF
     event representation in the training inventory.
     All maps at 30\,m resolution, UTM Zone 43N.}
@@ -206,7 +206,7 @@ where the model's decision boundary is least confident;
 and (2) the Trans-Himalayan zone, where GLOF-triggered events
 follow a different process not well-represented in the training data.
 Lowest uncertainty (narrow intervals) is in the Very High susceptibility core
-of the Beas and Satluj valleys and the clearly low-susceptibility plateau.
+of the Beas and Sutlej valleys and the clearly low-susceptibility plateau.
 
 Coverage stratified by susceptibility class
 (Low: 96.3\%; Moderate: 60.9\%; High: 45.3\%; Very High: 59.3\%)
@@ -233,7 +233,7 @@ Zones combining Very High susceptibility ($>$0.70) and narrow uncertainty width
 protection and early warning investment:
 the model is both highly concerned and highly confident.
 Very High susceptibility zones alone cover approximately 4,409\,km$^2$ of HP
-(4.0\% of the study domain), concentrated in the lower Beas and middle Satluj valleys.
+(4.0\% of the study domain), concentrated in the lower Beas and middle Sutlej valleys.
 
 \subsection{SHAP Feature Importance}
 \label{sec:results_shap}
@@ -342,7 +342,7 @@ operational framework for HP SDMA (\cref{tab:decision_framework}).
 The key insight is that both dimensions are required for actionable decisions:
 very high susceptibility alone is insufficient if model uncertainty is also high
 (as in the Trans-Himalayan GLOF corridors),
-whereas narrow uncertainty with high susceptibility (as in the Beas--Satluj valleys)
+whereas narrow uncertainty with high susceptibility (as in the Beas--Sutlej valleys)
 warrants immediate protective investment.
 
 \begin{table}[htbp]

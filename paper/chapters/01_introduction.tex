@@ -9,7 +9,7 @@ The 2023 HP monsoon season was particularly catastrophic: 404 confirmed fataliti
 more than 4,700 roads damaged or blocked, and direct economic losses exceeding
 Rs.\ 9,905 crore (\$1.2 billion USD), making it one of the three most destructive
 flood seasons in Indian recorded history \citep{ndma2023, hiflodot2025}.
-These losses were concentrated along the Beas, Satluj, and Chenab valleys,
+These losses were concentrated along the Beas, Sutlej, and Chenab valleys,
 where steep terrain, high seasonal precipitation, and dense infrastructure create
 exceptional compound hazard conditions.
 
@@ -95,8 +95,8 @@ This study addresses all five gaps through the following specific contributions:
     statistically guaranteed 90\% coverage intervals for the first time in FFSM.
 
   \item \textbf{Spatial block cross-validation.}
-    All models are evaluated using leave-one-basin-out spatial block CV
-    (five folds: Beas, Satluj, Chenab, Ravi, Yamuna),
+    All models are evaluated using leave-one-block-out spatial block CV
+    (five k-means geographically contiguous folds),
     providing bias-corrected AUC, F1, and Cohen's Kappa estimates.
 
   \item \textbf{State-wide risk assessment with infrastructure overlay.}

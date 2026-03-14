@@ -6,13 +6,14 @@ Output: results/paper_figures/fig01_study_area.png
 """
 
 import sys
+import json
+import urllib.request
 from pathlib import Path
 
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.patheffects as pe
-import json
 
 sys.path.insert(0, str(Path(__file__).parent))
 from config import PAPER_DIR, BOUNDARIES_DIR  # noqa: E402
@@ -20,11 +21,41 @@ from config import PAPER_DIR, BOUNDARIES_DIR  # noqa: E402
 # River basin colours
 BASIN_COLOURS = {
     "Beas":   "#4ECDC4",
-    "Satluj": "#45B7D1",
+    "Sutlej": "#45B7D1",
     "Chenab": "#96CEB4",
     "Ravi":   "#FFEAA7",
     "Yamuna": "#DDA0DD",
 }
+
+def get_india_polygon() -> list[tuple]:
+    """
+    Load India's boundary from local cache (Natural Earth 110m, downloaded once).
+    Run the script once with internet access to populate the cache.
+    """
+    cache_path = BOUNDARIES_DIR / "india_outline.json"
+
+    if cache_path.exists():
+        coords = json.loads(cache_path.read_text())
+        return [(c[0], c[1]) for c in coords]
+
+    # Download from Natural Earth 110m countries (run once)
+    ne_url = ("https://raw.githubusercontent.com/nvkelso/natural-earth-vector"
+              "/master/geojson/ne_110m_admin_0_countries.geojson")
+    print("  Fetching India boundary from Natural Earth (one-time download)...")
+    with urllib.request.urlopen(ne_url, timeout=15) as resp:
+        data = json.loads(resp.read())
+    india = next(
+        f for f in data["features"]
+        if f["properties"].get("ISO_A3") == "IND"
+           or f["properties"].get("NAME") == "India"
+    )
+    geom = india["geometry"]
+    rings = [geom["coordinates"][0]] if geom["type"] == "Polygon" \
+            else [p[0] for p in geom["coordinates"]]
+    coords = max(rings, key=len)   # longest ring = mainland
+    cache_path.write_text(json.dumps(coords))
+    print(f"  Cached → {cache_path}")
+    return [(c[0], c[1]) for c in coords]
 
 # Major locations (lon, lat, label, district)
 LOCATIONS = [
@@ -95,7 +126,7 @@ def main() -> None:
     # ── River corridors (schematic lines, not real polylines) ─────────────────
     rivers = {
         "Beas":   [(77.12, 32.70), (77.10, 32.10), (76.85, 31.60)],
-        "Satluj": [(78.50, 31.85), (77.60, 31.65), (76.40, 31.20)],
+        "Sutlej": [(78.50, 31.85), (77.60, 31.65), (76.40, 31.20)],
         "Chenab": [(77.90, 32.90), (76.90, 32.50), (76.00, 33.10)],
         "Ravi":   [(76.50, 32.65), (76.10, 32.20), (75.70, 32.10)],
         "Yamuna": [(78.00, 31.10), (77.60, 30.60), (77.20, 30.35)],
@@ -120,14 +151,15 @@ def main() -> None:
             path_effects=[pe.withStroke(linewidth=2, foreground="white")],
         )
 
-    # ── NH highways (schematic) ───────────────────────────────────────────────
-    nh3  = [(77.20, 32.24), (77.10, 32.55), (77.08, 32.90), (77.12, 33.10)]   # Manali-Leh
-    nh21 = [(76.82, 30.70), (77.00, 31.40), (77.10, 31.83), (77.10, 32.10)]   # Chandigarh-Manali
-    for pts, label, col in [(nh3, "NH-3 (Manali-Leh)", "#CC4444"),
-                             (nh21, "NH-21 (Chd-Manali)", "#CC4444")]:
-        xs = [p[0] for p in pts]
-        ys = [p[1] for p in pts]
-        ax.plot(xs, ys, "--", color=col, linewidth=1.2, alpha=0.7, zorder=4)
+    # ── NH-3: Chandigarh–Manali–Leh (single combined route after 2010 renumbering) ──
+    nh3 = [
+        (76.82, 30.70), (77.00, 31.40), (77.10, 31.83),  # Chandigarh→Manali
+        (77.10, 32.10), (77.10, 32.55), (77.08, 32.90), (77.12, 33.10),  # Manali→Leh
+    ]
+    xs = [p[0] for p in nh3]
+    ys = [p[1] for p in nh3]
+    ax.plot(xs, ys, "--", color="#CC4444", linewidth=1.2, alpha=0.7, zorder=4,
+            label="NH-3 (Chandigarh--Leh)")
 
     # ── Axes ──────────────────────────────────────────────────────────────────
     ax.set_xlim(75.3, 79.2)
@@ -140,28 +172,29 @@ def main() -> None:
     )
 
     # ── Inset: India locator ──────────────────────────────────────────────────
-    axin = ax.inset_axes([0.02, 0.02, 0.22, 0.22])
-    india_rect = plt.Rectangle((68, 6), 29, 30,
-                                linewidth=1, edgecolor="black",
-                                facecolor="#DDDDDD")
-    hp_rect = plt.Rectangle((75.5, 30.2), 3.5, 3.1,
-                             linewidth=1.5, edgecolor="red",
-                             facecolor="#FF6B6B", alpha=0.7)
-    axin.add_patch(india_rect)
-    axin.add_patch(hp_rect)
-    axin.set_xlim(65, 100)
-    axin.set_ylim(5, 40)
+    axin = ax.inset_axes([0.02, 0.02, 0.25, 0.28])
+    from matplotlib.patches import Polygon as MplPolygon
+    india_poly = MplPolygon(get_india_polygon(), closed=True,
+                            facecolor="#D5D5D5", edgecolor="#555555",
+                            linewidth=0.8, zorder=1)
+    axin.add_patch(india_poly)
+    hp_marker = plt.Rectangle((75.5, 30.2), 3.5, 3.1,
+                               linewidth=1.5, edgecolor="#CC0000",
+                               facecolor="#FF4444", alpha=0.85, zorder=2)
+    axin.add_patch(hp_marker)
+    axin.text(77.2, 31.0, "HP", ha="center", va="center",
+              fontsize=6, fontweight="bold", color="white", zorder=3)
+    axin.set_xlim(65, 99)
+    axin.set_ylim(6, 38)
     axin.set_xticks([])
     axin.set_yticks([])
-    axin.set_title("India", fontsize=7)
+    axin.set_title("India", fontsize=7, pad=2)
+    axin.set_aspect("equal")
 
     # ── Legend ────────────────────────────────────────────────────────────────
-    handles = [
-        mpatches.Patch(color=c, label=b) for b, c in BASIN_COLOURS.items()
-    ]
-    handles.append(mpatches.Patch(color="white", label=""))
+    handles = [mpatches.Patch(color=c, label=b) for b, c in BASIN_COLOURS.items()]
     handles.append(plt.Line2D([0], [0], linestyle="--", color="#CC4444",
-                               label="National Highway"))
+                               linewidth=1.5, label="NH-3 (Chandigarh–Leh)"))
     ax.legend(handles=handles, loc="upper right", fontsize=8,
               framealpha=0.9, title="River Basins / Roads", title_fontsize=8)
 
