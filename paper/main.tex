@@ -1,10 +1,10 @@
-\documentclass[twocolumn, 9pt]{extarticle}
+\documentclass[11pt, a4paper]{article}
 
 % ── Packages ──────────────────────────────────────────────────────────────────
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-\usepackage[top=2cm, bottom=2cm, left=1.5cm, right=1.5cm, columnsep=0.6cm]{geometry}
+\usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
 
 \usepackage{amsmath, amssymb}
 \usepackage{graphicx}
@@ -28,22 +28,16 @@
 \usepackage{parskip}
 \setlength{\parskip}{3pt}
 
-% Section heading formatting — compact journal style
+% Section heading formatting
 \usepackage{titlesec}
-\titlespacing*{\section}{0pt}{8pt}{4pt}
-\titlespacing*{\subsection}{0pt}{6pt}{3pt}
-\titlespacing*{\subsubsection}{0pt}{4pt}{2pt}
-\titleformat{\section}{\normalfont\fontsize{9}{11}\bfseries\scshape}{\thesection}{0.5em}{}
-\titleformat{\subsection}{\normalfont\fontsize{9}{11}\bfseries}{\thesubsection}{0.5em}{}
-\titleformat{\subsubsection}{\normalfont\fontsize{9}{11}\itshape}{\thesubsubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{12pt}{6pt}
+\titlespacing*{\subsection}{0pt}{8pt}{4pt}
+\titlespacing*{\subsubsection}{0pt}{6pt}{3pt}
 
 % ── Metadata ──────────────────────────────────────────────────────────────────
-\title{%
-  \fontsize{13}{15}\selectfont\bfseries
-  Flash Flood Susceptibility Mapping in Himachal Pradesh Using\\
-  Graph Neural Networks and Conformal Prediction:\\[2pt]
-  \fontsize{11}{13}\selectfont\mdseries
-  A SAR-Based Inventory with Uncertainty-Quantified Risk Assessment
+\title{Flash Flood Susceptibility Mapping in Himachal Pradesh Using\\
+  Graph Neural Networks and Conformal Prediction:\\[4pt]
+  \large A SAR-Based Inventory with Uncertainty-Quantified Risk Assessment
 }
 
 \author{%
@@ -56,26 +50,15 @@
 % ── Document ──────────────────────────────────────────────────────────────────
 \begin{document}
 
-\twocolumn[{%
 \maketitle
-\vspace{-8pt}
-\noindent\rule{\linewidth}{0.4pt}
-\vspace{4pt}
 
-\begin{center}
-\parbox{0.94\linewidth}{%
-\small\textbf{Abstract.}\enspace\input{chapters/00_abstract}
-}\\[6pt]
-\parbox{0.94\linewidth}{%
-\footnotesize\textbf{Keywords:} flash flood susceptibility; graph neural network; GraphSAGE;
+\begin{abstract}
+\input{chapters/00_abstract}
+\end{abstract}
+
+\noindent\textbf{Keywords:} flash flood susceptibility; graph neural network; GraphSAGE;
 conformal prediction; SAR flood inventory; Himachal Pradesh; leave-one-basin-out CV;
 watershed graph; SHAP; uncertainty quantification.
-}
-\end{center}
-\vspace{6pt}
-\noindent\rule{\linewidth}{0.4pt}
-\vspace{10pt}
-}]
 
 \input{chapters/01_introduction}
 \input{chapters/02_study_area}
@@ -83,11 +66,6 @@ watershed graph; SHAP; uncertainty quantification.
 \input{chapters/04_results}
 \input{chapters/05_discussion}
 \input{chapters/06_conclusion}
-
-\clearpage
-\onecolumn
-\section*{Figures}
-\input{chapters/07_figures}
 
 \section*{Acknowledgements}
 Sentinel-1 SAR data from the Copernicus Open Access Hub.

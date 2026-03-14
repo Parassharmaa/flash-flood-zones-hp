@@ -68,6 +68,27 @@ All results are mean\,$\pm$\,SD across the five LOBO folds.
   \end{tabular}
 \end{table}
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{../results/paper_figures/fig04_model_comparison.png}
+  \caption{\textbf{Model comparison under leave-one-basin-out spatial block CV.}
+    Box plots of AUC-ROC across five basin folds for all models (left) and
+    mean AUC\,$\pm$\,SD per model (right).
+    Dashed line: \citet{saha2023} benchmark (AUC\,=\,0.88, Beas basin, random split).
+    GNN-GraphSAGE outperforms all pixel-based baselines in all folds.}
+  \label{fig:model_comparison}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{../results/paper_figures/fig05_gnn_improvement.png}
+  \caption{\textbf{AUC improvement from watershed graph structure.}
+    Grouped bars show GNN-GraphSAGE vs.\ best pixel-based model (Stacking Ensemble)
+    per basin fold. Largest gains in Satluj and Beas; smallest in Chenab
+    where GLOF-triggered events do not follow runoff-accumulation patterns.}
+  \label{fig:gnn_improvement}
+\end{figure}
+
 The GNN-GraphSAGE achieved the highest mean AUC across all five folds,
 outperforming the best pixel-based model (stacking ensemble) by
 $\Delta$AUC\,=\,+0.094.
@@ -79,8 +100,7 @@ All models surpassed the \citet{saha2023} benchmark AUC of 0.88.
 The improvement is partially attributable to the larger, SAR-augmented
 training inventory and partially to the multi-basin versus single-basin
 training coverage.
-Detailed per-fold results are provided in \cref{tab:model_results_full}
-(Supplementary Material).
+Per-fold results are summarised in \cref{tab:model_results}.
 
 \subsection{Temporal Validation (2023 Monsoon Season)}
 \label{sec:results_temporal}
@@ -99,6 +119,20 @@ at the cost of increased false positives.
 
 \subsection{Susceptibility Maps}
 \label{sec:results_maps}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{../results/maps/susceptibility_uncertainty_map.png}
+  \caption{\textbf{Flash flood susceptibility maps with conformal prediction uncertainty.}
+    \textit{Left:} Point-estimate susceptibility (GNN-GraphSAGE).
+    \textit{Centre:} Lower bound of the 90\% prediction interval.
+    \textit{Right:} Uncertainty width (upper minus lower bound).
+    Narrow uncertainty in the Beas--Satluj valley corridor indicates high model
+    confidence; wide uncertainty in Trans-Himalayan zones reflects limited GLOF
+    event representation in the training inventory.
+    All maps at 30\,m resolution, UTM Zone 43N.}
+  \label{fig:susceptibility_map}
+\end{figure}
 
 \cref{fig:susceptibility_map} shows the final susceptibility map for HP
 produced by the GNN-GraphSAGE model, classified into four levels
@@ -121,6 +155,18 @@ providing qualitative validation of the map's spatial accuracy.
 \subsection{Conformal Prediction and Uncertainty Quantification}
 \label{sec:results_conformal}
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{../results/paper_figures/fig10_conformal_coverage.png}
+  \caption{\textbf{Conformal prediction coverage analysis.}
+    \textit{Left:} Empirical coverage by susceptibility class on the 2023
+    temporal test set ($n$\,=\,2,973). Dashed line: target 90\% coverage.
+    Low susceptibility achieves 96.3\%; High and Very High classes are
+    undercovered (45--59\%), attributable to SAR label noise in the high-risk regime.
+    \textit{Right:} Overall coverage (82.9\%), mean interval width (0.32).}
+  \label{fig:conformal_coverage}
+\end{figure}
+
 The conformal predictor, calibrated at $\alpha = 0.10$ using 2,968 held-out
 training observations, achieved 82.9\% empirical coverage on the 2023 test set
 ($n = 2,973$), slightly below the nominal 90\% target.
@@ -133,7 +179,7 @@ likely reflecting heterogeneity in the SAR-based training labels
 (which capture seasonal backscatter change rather than discrete inundation events).
 Mean uncertainty half-width (90\% interval) across all test points is 0.32.
 
-\cref{fig:uncertainty_map} shows the uncertainty width map.
+\cref{fig:susceptibility_map} (right panel) shows the uncertainty width map.
 Highest uncertainty (wide intervals) is observed in:
 (1) the transition zone between Moderate and High susceptibility classes,
 where the model's decision boundary is least confident;
@@ -160,6 +206,28 @@ Very High susceptibility zones alone cover approximately 4,409\,km$^2$ of HP
 \subsection{SHAP Feature Importance}
 \label{sec:results_shap}
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{../results/shap/global_importance.png}
+  \caption{\textbf{Global SHAP feature importance} (mean $|\phi_j|$ across all
+    training samples).
+    Elevation (0.184), plan curvature (0.116), and slope (0.103) are the three
+    most important susceptibility drivers, accounting for 73\% of total SHAP mass.
+    Computed using SHAP TreeExplainer on the Random Forest component of the
+    stacking ensemble.}
+  \label{fig:shap_global}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{../results/shap/dependence_plots.png}
+  \caption{\textbf{SHAP dependence plots} for the six most important conditioning
+    factors. Each point represents one training sample; the $y$-axis shows the
+    SHAP value (contribution to log-odds of flood susceptibility) and colour encodes
+    TWI for interaction visualisation.}
+  \label{fig:shap_dependence}
+\end{figure}
+
 \cref{fig:shap_global} shows global SHAP importance (mean $|\phi_j|$) for all 12 factors.
 The three most important factors are:
 (1) elevation (mean $|\phi| = $ 0.184);
@@ -177,7 +245,7 @@ suggesting that in HP, the high-intensity rainfall trigger dominates
 over land-cover changes in modulating flash flood susceptibility.
 
 \paragraph{District spatial variation.}
-The dominant factor map (\cref{fig:spatial_shap}) reveals marked geographic
+The dominant factor map reveals marked geographic
 variation in the primary susceptibility driver.
 In the Shivalik foothills (Bilaspur, Una), extreme rainfall dominates.
 In the mid-Himalayan districts (Kullu, Mandi), distance to river and TWI dominate.

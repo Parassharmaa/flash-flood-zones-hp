@@ -2,7 +2,20 @@
 \label{sec:data_methods}
 
 The methodological workflow is summarised in \cref{fig:workflow} and proceeds in
-five stages: (1) flood inventory construction; (2) conditioning factor assembly
+five stages:
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{../results/paper_figures/fig02_workflow.png}
+  \caption{\textbf{Methodological workflow.}
+    Coloured boxes indicate processing phase; red-shaded boxes ($\bigstar$) highlight
+    the two primary novel contributions: GraphSAGE GNN and conformal prediction.
+    Small-patch morphological filtering is performed post-download in Python using
+    scipy binary opening.}
+  \label{fig:workflow}
+\end{figure}
+
+(1) flood inventory construction; (2) conditioning factor assembly
 and multicollinearity screening; (3) watershed graph construction;
 (4) model training and spatial block cross-validation; and
 (5) conformal prediction and uncertainty quantification.
@@ -155,7 +168,7 @@ on a stratified random sample of 10,000 pixels.
 Pairs with $|r| > 0.80$ were flagged for removal.
 Variance Inflation Factor (VIF) was computed for the retained factor set,
 with VIF\,$>$\,10 as the removal threshold.
-The final retained factor set is reported in Section~\ref{sec:factors_retained}.
+The final retained factor set is reported in \cref{sec:results_factors}.
 
 \subsection{Watershed Graph Construction}
 \label{sec:graph}
@@ -228,7 +241,7 @@ class imbalance (typically 20--30\% positive nodes).
 The model was implemented in PyTorch 2.6 and PyTorch Geometric 2.7.
 In settings where PyTorch Geometric is unavailable,
 a neighbourhood-aggregation MLP proxy is used as a computational fallback
-(Appendix~\ref{app:proxy}).
+(see repository at \url{https://github.com/Parassharmaa/flash-flood-zones-hp}).
 
 \subsection{Spatial Block Cross-Validation}
 \label{sec:validation}
@@ -287,7 +300,7 @@ The uncertainty width $W = \hat{p}_\mathrm{upper} - \hat{p}_\mathrm{lower}$
 quantifies epistemic uncertainty at each location.
 MAPIE v1.3 \citep{taquet2022mapie} was used for the production implementation;
 a manual fallback implementation is provided for reproducibility
-(see \cref{sec:code_availability}).
+(available at \url{https://github.com/Parassharmaa/flash-flood-zones-hp}).
 
 \subsection{SHAP Feature Importance}
 \label{sec:shap}
