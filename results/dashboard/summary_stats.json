@@ -1,0 +1,51 @@
+{
+  "model_performance": {
+    "gnn_auc": 0.995,
+    "stacking_auc": 0.901,
+    "rf_auc": 0.9,
+    "xgboost_auc": 0.89,
+    "lightgbm_auc": 0.893,
+    "delta_auc_gnn_over_stacking": 0.094,
+    "benchmark_saha2023": 0.88,
+    "temporal_val_auc_2023": 0.892,
+    "conformal_coverage": 82.9,
+    "conformal_target": 90.0
+  },
+  "susceptibility_areas": {
+    "vhigh_km2": 4409,
+    "high_km2": 11376,
+    "high_vhigh_total_km2": 15785,
+    "pct_domain": 14.3
+  },
+  "infrastructure_exposure": {
+    "highways_km": 1457,
+    "bridges": 2759,
+    "hydro_plants": 4,
+    "villages_vhigh": 40,
+    "tourism_units": 92
+  },
+  "top_shap_factors": [
+    {
+      "factor": "elevation",
+      "importance": 0.184
+    },
+    {
+      "factor": "plan_curvature",
+      "importance": 0.116
+    },
+    {
+      "factor": "slope",
+      "importance": 0.103
+    }
+  ],
+  "district_risk_counts": {
+    "Low": 12
+  },
+  "n_districts": 12,
+  "conformal_coverage_by_class": {
+    "Low": 96.3,
+    "Moderate": 60.9,
+    "High": 45.3,
+    "Very_High": 59.3
+  }
+}
