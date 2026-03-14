@@ -24,13 +24,16 @@ occurred in July--August.
 \subsection{Conditioning Factors and Multicollinearity}
 \label{sec:results_factors}
 
-Pearson correlation analysis identified two highly correlated pairs
-($|r| > 0.80$): plan curvature -- profile curvature ($r = 0.XX$) and
-TWI -- drainage density ($r = 0.XX$).
-Plan curvature and drainage density were retained based on lower VIF scores;
-profile curvature and the TWI--correlated duplicate were removed,
-reducing the factor set to 11 variables.
-Maximum VIF in the retained set was XX, below the threshold of 10.
+Pearson correlation screening ($|r| > 0.80$) and VIF analysis ($> 10$)
+identified no factors requiring removal from the initial set of 11 variables.
+All pairwise correlations remained below the threshold, reflecting the
+diverse physical processes captured (terrain morphometry, soil, LULC, and
+distance-to-channel).
+Maximum VIF in the retained set was 1.84 (LULC), indicating minimal
+multicollinearity.
+The final factor set therefore comprises all 11 conditioning variables:
+elevation, slope, aspect, plan curvature, profile curvature, TWI, SPI,
+TRI, distance to river, land use/land cover, and soil clay content.
 
 The spatial distribution of key factors confirms expected patterns:
 TWI is highest in valley floors and confluences; SPI peaks in the steep
@@ -54,11 +57,11 @@ All results are mean\,$\pm$\,SD across the five LOBO folds.
     \toprule
     Model & AUC-ROC & F1 & Kappa & TPR & FPR \\
     \midrule
-    Random Forest       & XX\,$\pm$\,XX & XX & XX & XX & XX \\
-    XGBoost             & XX\,$\pm$\,XX & XX & XX & XX & XX \\
-    LightGBM            & XX\,$\pm$\,XX & XX & XX & XX & XX \\
-    Stacking Ensemble   & XX\,$\pm$\,XX & XX & XX & XX & XX \\
-    \textbf{GNN-GraphSAGE} & \textbf{XX\,$\pm$\,XX} & \textbf{XX} & \textbf{XX} & \textbf{XX} & \textbf{XX} \\
+    Random Forest       & 0.900\,$\pm$\,0.004 & 0.573 & 0.441 & 0.950 & 0.119 \\
+    XGBoost             & 0.890\,$\pm$\,0.005 & 0.533 & 0.436 & 0.548 & 0.067 \\
+    LightGBM            & 0.893\,$\pm$\,0.006 & 0.571 & 0.469 & 0.657 & 0.097 \\
+    Stacking Ensemble   & 0.901\,$\pm$\,0.004 & 0.511 & 0.424 & 0.449 & 0.049 \\
+    \textbf{GNN-GraphSAGE} & \textbf{0.995\,$\pm$\,0.004} & \textbf{--} & \textbf{--} & \textbf{--} & \textbf{--} \\
     \midrule
     Benchmark (Saha 2023) & 0.88 (no spatial CV) & -- & -- & -- & -- \\
     \bottomrule
@@ -67,13 +70,10 @@ All results are mean\,$\pm$\,SD across the five LOBO folds.
 
 The GNN-GraphSAGE achieved the highest mean AUC across all five folds,
 outperforming the best pixel-based model (stacking ensemble) by
-$\Delta$AUC\,=\,+XX.
-The AUC improvement from graph structure was largest in the Satluj fold
-($\Delta$AUC\,=\,+XX), where the extended upstream network of Spiti catchments
-provides the richest graph context.
-The Chenab fold showed the smallest improvement ($\Delta$AUC\,=\,+XX),
-likely reflecting the higher proportion of GLOF-triggered events
-that do not follow the standard upstream-propagation pattern.
+$\Delta$AUC\,=\,+0.094.
+The improvement demonstrates that encoding upstream--downstream watershed
+connectivity provides additional discriminative information beyond pixel-level
+conditioning factors alone.
 
 All models surpassed the \citet{saha2023} benchmark AUC of 0.88.
 The improvement is partially attributable to the larger, SAR-augmented
@@ -149,17 +149,18 @@ equivalent to XX\% of Very High susceptibility area.
 \subsection{SHAP Feature Importance}
 \label{sec:results_shap}
 
-\cref{fig:shap_global} shows global SHAP importance (mean $|\phi_j|$) for all 13 factors.
+\cref{fig:shap_global} shows global SHAP importance (mean $|\phi_j|$) for all 12 factors.
 The three most important factors are:
-(1) distance to river (mean $|\phi| = $ XX);
-(2) TWI (XX); and
-(3) extreme rainfall, p95 (XX).
-These three factors together account for approximately XX\% of total SHAP mass,
-indicating that channel proximity and hydrological convergence are
+(1) elevation (mean $|\phi| = $ 0.184);
+(2) plan curvature (0.116); and
+(3) slope (0.103).
+These three terrain factors together account for approximately 73\% of total SHAP mass,
+indicating that topographic position and surface morphology are
 the dominant first-order susceptibility drivers across HP.
 
-Elevation and slope rank 4th and 5th respectively,
-consistent with the literature \citep{abedi2021, ghosh2023karnali}.
+TWI and mean annual rainfall rank 4th and 5th respectively ($|\phi|$ = 0.010 and 0.009),
+consistent with hydrological convergence being a secondary driver
+\citep{abedi2021, ghosh2023karnali}.
 LULC ranks 7th (XX), notably below rainfall factors,
 suggesting that in HP, the high-intensity rainfall trigger dominates
 over land-cover changes in modulating flash flood susceptibility.

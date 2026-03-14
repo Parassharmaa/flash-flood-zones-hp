@@ -60,9 +60,41 @@ def load_sar_inventory() -> gpd.GeoDataFrame:
             crs = src.crs
 
         # Morphological opening: remove isolated pixels (small-patch filter)
-        # Replaces connectedPixelCount removed from GEE to avoid CRS errors
         from scipy.ndimage import binary_opening
         flood_mask = binary_opening(data == 1, structure=np.ones((3, 3)))
+
+        # Physical plausibility filter: real flash floods occur on gentle slopes
+        # near rivers and at lower elevations. Apply slope + distance filters to
+        # reduce false positives from seasonal vegetation/moisture SAR changes.
+        slope_path = FACTORS_DIR / "slope_30m.tif"
+        dist_path  = FACTORS_DIR / "distance_to_river_30m.tif"
+        elev_path  = FACTORS_DIR / "elevation_30m.tif"
+        if slope_path.exists() and dist_path.exists():
+            import rasterio.warp
+            with rasterio.open(slope_path) as s:
+                slope_arr = s.read(1)
+                # Resample slope to SAR grid
+                slope_sam = np.empty(flood_mask.shape, dtype=np.float32)
+                rasterio.warp.reproject(
+                    source=slope_arr, destination=slope_sam,
+                    src_transform=s.transform, src_crs=s.crs,
+                    dst_transform=transform, dst_crs=crs,
+                    resampling=rasterio.enums.Resampling.bilinear,
+                )
+            with rasterio.open(dist_path) as d_:
+                dist_arr = d_.read(1)
+                dist_sam = np.empty(flood_mask.shape, dtype=np.float32)
+                rasterio.warp.reproject(
+                    source=dist_arr, destination=dist_sam,
+                    src_transform=d_.transform, src_crs=d_.crs,
+                    dst_transform=transform, dst_crs=crs,
+                    resampling=rasterio.enums.Resampling.bilinear,
+                )
+            # Keep only pixels with slope < 15° and within 2 km of river
+            terrain_filter = (slope_sam < 15) & (dist_sam < 2000) & (dist_sam >= 0)
+            flood_mask = flood_mask & terrain_filter
+            print(f"    Terrain filter: {terrain_filter.sum():,} eligible pixels")
+
         ys, xs = np.where(flood_mask)
 
         # Sample up to 500 points per event (avoid huge inventories)
