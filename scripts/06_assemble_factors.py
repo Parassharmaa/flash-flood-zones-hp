@@ -238,10 +238,36 @@ def aggregate_to_watersheds(retained: list[str], factor_data: dict[str, np.ndarr
     print(f"  Node features ({len(node_df)} watersheds × {len(retained)} factors) → {out}")
 
 
+def merge_lulc_tiles() -> None:
+    """Merge ESA WorldCover tiles into a single lulc_hp.tif if needed."""
+    dest = LULC_DIR / "lulc_hp.tif"
+    if dest.exists():
+        return
+    tiles = sorted(LULC_DIR.glob("ESA_WorldCover*.tif"))
+    if not tiles:
+        return
+    print(f"  Merging {len(tiles)} LULC tiles → {dest.name}")
+    from rasterio.merge import merge as rio_merge
+    datasets = [rasterio.open(t) for t in tiles]
+    mosaic, out_transform = rio_merge(datasets)
+    meta = datasets[0].meta.copy()
+    meta.update({"driver": "GTiff", "height": mosaic.shape[1],
+                 "width": mosaic.shape[2], "transform": out_transform,
+                 "compress": "lzw"})
+    for ds in datasets:
+        ds.close()
+    with rasterio.open(dest, "w", **meta) as dst:
+        dst.write(mosaic)
+    print(f"  LULC merged → {dest}")
+
+
 def main() -> None:
     print("=" * 60)
     print("Phase 2: Assemble conditioning factors")
     print("=" * 60)
+
+    # Merge LULC tiles if needed
+    merge_lulc_tiles()
 
     # Reference grid = DEM
     ref_path = TERRAIN_DIR / "dem_hp.tif"
