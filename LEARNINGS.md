@@ -150,17 +150,32 @@ Benchmark: Saha et al. 2023 (AUC=0.88) — target to beat.
 - Added `distance_to_river` terrain factor (was in docs but not implemented)
 - Fixed `rainfall_extreme` filename (max_monthly not p95)
 
-## Next Steps (Paper → Dashboard)
-### Paper (Phase 1 — COMPLETE)
-All placeholders filled. Paper compiles at 4.05 MB. Push to preprint (arXiv/ESSOAr) when ready.
+## Completed Work (Session 4)
+- Reformatted paper: two-column 9pt journal style, no line numbers, author = Paras Sharma
+- Paper PDF updated and pushed to GitHub: paper/main.pdf (4.04 MB)
+- HTML dashboard: dashboard/generate_html_dashboard.py → results/dashboard/dashboard.html
+  - Folium choropleth map, Plotly model comparison + SHAP + conformal charts
+  - Infrastructure exposure KPIs, operational decision framework table
+  - Self-contained HTML, no server required
+- Streamlit app: dashboard/app.py (5 pages: Overview Map, District Profiles, Model Performance, SHAP, Uncertainty)
+  - Upgraded to streamlit==1.55.0, fixed pandas>=2.2 compatibility
+  - Running at http://localhost:8501
+- dashboard/requirements.txt for Streamlit Cloud deployment
+- .streamlit/config.toml with theme settings
 
-### Dashboard (Phase 2 — TODO)
-- Build interactive Streamlit/Folium dashboard from susceptibility GeoTIFFs
-- Deploy to Streamlit Cloud or HuggingFace Spaces
-- Inputs: susceptibility_point_estimate.tif, uncertainty_width.tif, spatial_factor_map.tif
-- Key views: susceptibility choropleth by district, uncertainty overlay, SHAP factor bar chart
+## Next Steps
+### Paper
+- Submit to arXiv as preprint (cs.LG + physics.geo-ph)
+- Submit to NHESS: https://www.natural-hazards-and-earth-system-sciences.net/
+
+### Dashboard deployment
+- Deploy Streamlit app to Streamlit Cloud:
+  1. Push results/dashboard/ GeoJSON to GitHub (currently gitignored)
+  2. Create Streamlit Cloud account → connect to Parassharmaa/flash-flood-zones-hp
+  3. Set main file path: dashboard/app.py
 
 ### Optional improvements
 - Install MAPIE (`uv add mapie`) for formal conformal prediction (currently manual fallback)
 - Add Sentinel-1 archive extension (2024 season) to increase training data
 - Stratify GNN by trigger mechanism (monsoon vs GLOF) for Trans-Himalayan catchments
+- Get actual HP district polygon boundaries (not bounding boxes) for better district stats

@@ -25,6 +25,14 @@ State-wide flash flood susceptibility assessment using Graph Neural Networks and
 4. **Conformal prediction** (split-conformal, α=0.10) — uncertainty-quantified susceptibility maps
 5. **Leave-one-basin-out** spatial block CV across 5 HP river basins
 
+## Dashboard
+
+```bash
+uv sync
+uv run streamlit run dashboard/app.py   # interactive Streamlit app
+uv run python dashboard/generate_html_dashboard.py  # static HTML version
+```
+
 ## Run Pipeline
 
 ```bash
@@ -44,5 +52,5 @@ scripts/          # pipeline (00–17)
 paper/            # LaTeX manuscript → main.pdf
 results/          # model outputs (gitignored)
 data/             # raw + processed data (gitignored)
-dashboard/        # Streamlit dashboard
+dashboard/        # Streamlit + HTML dashboard
 ```
