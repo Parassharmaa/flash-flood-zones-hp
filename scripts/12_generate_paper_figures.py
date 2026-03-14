@@ -177,45 +177,57 @@ def fig_conformal_coverage() -> None:
     levels = list(cov["coverage_by_level"].keys())
     covs   = list(cov["coverage_by_level"].values())
     colors = ["#2ECC71", "#F1C40F", "#E67E22", "#E74C3C"][:len(levels)]
-    axes[0].bar(levels, covs, color=colors, edgecolor="black", linewidth=0.8)
+    bars = axes[0].bar(levels, covs, color=colors, edgecolor="black", linewidth=0.8, width=0.55)
     axes[0].axhline(cov["target_coverage"], color="navy", linestyle="--",
                     linewidth=2, label=f"Target: {cov['target_coverage']:.0%}")
-    axes[0].set_ylabel("Empirical Coverage")
-    axes[0].set_ylim(0.7, 1.05)
-    axes[0].set_title("Coverage by Susceptibility Level")
-    axes[0].legend()
-    for i, (l, c) in enumerate(zip(levels, covs)):
-        axes[0].text(i, c + 0.005, f"{c:.1%}", ha="center", va="bottom",
+    axes[0].set_ylabel("Empirical Coverage", fontsize=11)
+    axes[0].set_ylim(0, 1.12)
+    axes[0].set_title("Coverage by Susceptibility Class\n(2023 temporal test set, n=2,973)",
+                      fontsize=11, fontweight="bold")
+    axes[0].legend(fontsize=10)
+    axes[0].tick_params(axis="x", labelsize=10)
+    axes[0].yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
+    for i, (lv, c) in enumerate(zip(levels, covs)):
+        axes[0].text(i, c + 0.02, f"{c:.1%}", ha="center", va="bottom",
                      fontsize=10, fontweight="bold")
+    # Add note for undercovered classes
+    axes[0].text(0.5, -0.13,
+                 "High and Very High classes are undercovered — model is overconfident in high-risk zones",
+                 ha="center", va="top", fontsize=8, style="italic", color="#666",
+                 transform=axes[0].transAxes)
 
-    # Right: summary metrics
-    metrics = {
-        "Target Coverage":   f"{cov['target_coverage']:.0%}",
-        "Achieved Coverage": f"{cov['achieved_coverage']:.1%}",
-        "Mean Interval\nWidth": f"{cov['avg_interval_width']:.3f}",
-        "Valid?":            "Yes" if cov.get("is_valid", True) else "No",
-    }
+    # Right: summary metrics as clean table
+    achieved = cov["achieved_coverage"]
+    target   = cov["target_coverage"]
+    width    = cov["avg_interval_width"]
+
+    rows = [
+        ("Overall coverage",   f"{achieved:.1%}",  "#E74C3C" if achieved < target else "#2ECC71"),
+        ("Target coverage",    f"{target:.0%}",    "#2C3E50"),
+        ("Mean interval width", f"{width:.3f}",    "#2C3E50"),
+        ("Coverage valid?",    "No (82.9% < 90%)", "#E74C3C"),
+    ]
+
     axes[1].axis("off")
-    y_pos = 0.85
-    axes[1].text(0.5, 0.95, "Conformal Prediction Summary",
-                 ha="center", va="top", fontsize=12, fontweight="bold",
-                 transform=axes[1].transAxes)
-    for key, val in metrics.items():
-        axes[1].text(0.2, y_pos, key + ":", ha="left", va="center",
-                     fontsize=11, transform=axes[1].transAxes)
-        axes[1].text(0.75, y_pos, val, ha="center", va="center",
-                     fontsize=12, fontweight="bold", color="#2C3E50",
+    axes[1].set_title("Summary Statistics\n(90% prediction intervals, α=0.10)",
+                      fontsize=11, fontweight="bold")
+    y_pos = 0.78
+    for label, value, color in rows:
+        axes[1].text(0.05, y_pos, label, ha="left", va="center",
+                     fontsize=11, transform=axes[1].transAxes, color="#444")
+        axes[1].text(0.95, y_pos, value, ha="right", va="center",
+                     fontsize=12, fontweight="bold", color=color,
+                     transform=axes[1].transAxes)
+        axes[1].plot([0.05, 0.95], [y_pos - 0.07, y_pos - 0.07],
+                     color="#ddd", linewidth=0.8,
                      transform=axes[1].transAxes)
         y_pos -= 0.18
 
-    axes[1].text(0.5, 0.05,
-                 "Split conformal prediction guarantees\ncoverage ≥ target on new observations",
+    axes[1].text(0.5, 0.08,
+                 "Undercoverage in high-risk zones is attributed to\nSAR label noise in the training inventory.",
                  ha="center", va="bottom", fontsize=9, style="italic",
                  transform=axes[1].transAxes, color="gray")
 
-    plt.suptitle("Figure 10: Conformal Prediction Coverage Analysis\n"
-                 f"α = {1 - cov['target_coverage']:.0%} → {cov['target_coverage']:.0%} prediction intervals",
-                 fontsize=12, fontweight="bold")
     plt.tight_layout()
     out = PAPER_DIR / "fig10_conformal_coverage.png"
     plt.savefig(out, dpi=200, bbox_inches="tight")

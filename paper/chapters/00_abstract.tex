@@ -1,44 +1,41 @@
 Flash floods are the most destructive natural hazard in Himachal Pradesh (HP), India,
 causing over 400 fatalities and \$1.2 billion in losses in the 2023 monsoon season alone.
-Existing susceptibility maps for the region are limited to a single river basin,
-use random train-test splits that inflate accuracy estimates,
-and provide only point-estimate risk scores with no quantified uncertainty.
+Existing susceptibility maps for the region cover only a single river basin,
+inflate accuracy estimates using random train-test splits,
+and report only a single risk score with no measure of uncertainty.
 This study presents the first state-wide, multi-basin flash flood susceptibility assessment
-for HP that addresses all three shortcomings simultaneously.
+for HP that addresses all three shortcomings.
 
-We constructed a six-year flood inventory (2018--2023) from Sentinel-1 SAR imagery
-processed in Google Earth Engine using a seasonal minimum backscatter approach,
-supplemented by terrain-filtered flood sampling (slope\,$<$\,15°, within 2\,km of channels)
+We built a six-year flood inventory (2018--2023) from Sentinel-1 radar imagery
+processed in Google Earth Engine, supplemented by terrain filtering to identify plausible flood locations,
 yielding 3,000 georeferenced flood occurrences across HP.
-Twelve conditioning factors spanning terrain morphology, hydrology, land cover, soil,
-and rainfall were assembled at 30\,m resolution after multicollinearity screening
-(one pair removed: $|r|=0.97$; remaining factors with max VIF\,=\,1.84).
-Four model families were evaluated: Random Forest (RF), XGBoost, LightGBM,
-and a stacking ensemble, serving as pixel-based baselines.
-As the primary methodological contribution, we trained a Graph Neural Network (GraphSAGE)
-on a directed watershed connectivity graph (460 sub-watersheds, 1,700 edges),
-explicitly encoding upstream--downstream flood propagation that pixel-based models cannot capture.
-All models were validated with leave-one-basin-out spatial block cross-validation
-to avoid the 5--15\% AUC inflation typical of random splits.
-As a second novel contribution, we applied split-conformal prediction (MAPIE)
-to produce the first susceptibility maps with statistically guaranteed 90\% coverage intervals,
-enabling prioritisation of high-risk, high-certainty zones for emergency management.
+Twelve environmental variables spanning terrain, hydrology, land cover, soil, and rainfall
+were assembled at 30\,m resolution after removing one redundant pair ($|r|=0.97$).
+Four machine-learning models served as pixel-based baselines: Random Forest, XGBoost,
+LightGBM, and a stacking ensemble.
+Our primary contribution is a Graph Neural Network (GraphSAGE) trained on a watershed
+connectivity graph (460 sub-watersheds, 1,700 edges), which captures how flooding in
+upstream catchments raises risk downstream --- something pixel-based models cannot represent.
+All models were evaluated using leave-one-basin-out cross-validation to avoid the
+5--15\% accuracy inflation common in random train-test splits.
+We also applied conformal prediction to produce the first HP susceptibility maps
+with statistically guaranteed 90\% coverage intervals,
+enabling planners to distinguish high-risk zones where the model is confident
+from those where uncertainty is high.
 
-The GNN achieved a mean spatial-CV AUC of 0.995\,$\pm$\,0.004, outperforming the best
-pixel-based model (stacking ensemble: AUC\,=\,0.901\,$\pm$\,0.004) and surpassing the
-benchmark reported by \citet{saha2023} (AUC\,=\,0.88) for the same study region.
-Conformal coverage analysis showed that the 90\% prediction intervals achieved
-82.9\% empirical coverage on the held-out temporal test set, with systematic
-undercoverage in high-risk areas (45--59\%) attributable to SAR label noise.
-SHAP analysis identified elevation, plan curvature, and slope as the three most globally
-important susceptibility drivers, with marked spatial variation across districts.
-High-susceptibility zones overlay approximately 1,457\,km of national and state highways,
-2,759 bridges, and 4 major hydroelectric installations,
-representing critical infrastructure exposure
-that is directly actionable by HP State Disaster Management Authority.
+The GNN achieved a mean AUC of 0.995\,$\pm$\,0.004, outperforming the best
+pixel-based model (stacking ensemble: AUC\,=\,0.901) and the published benchmark
+of \citet{saha2023} (AUC\,=\,0.88).
+Conformal intervals achieved 82.9\% coverage on a held-out 2023 test set,
+with lower coverage in high-risk zones (45--59\%) due to noise in the SAR-derived labels.
+Elevation, plan curvature, and slope were the three most important predictors overall,
+but the dominant driver varied by district.
+High-susceptibility zones overlap 1,457\,km of national highways, 2,759 bridges,
+and 4 major hydroelectric installations --- exposures that are directly actionable
+by the HP State Disaster Management Authority.
 
 \noindent\textbf{Plain language summary:}
-We created the most complete flood risk map yet produced for Himachal Pradesh
-by teaching a machine-learning model that water flows downhill through connected river valleys
-(not just through isolated grid cells), and by reporting not only \textit{where} flooding is likely
+We built the most complete flood risk map yet produced for Himachal Pradesh
+by training a model that understands how water flows through connected river valleys,
+and by reporting not only \textit{where} flooding is likely
 but \textit{how confident} the model is in each prediction.

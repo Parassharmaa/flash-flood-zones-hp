@@ -16,14 +16,11 @@ exceptional compound hazard conditions.
 Flash flood susceptibility mapping (FFSM) provides the spatial risk baseline
 required for land-use planning, infrastructure protection, early warning system design,
 and emergency response allocation.
-Machine-learning (ML) methods have displaced traditional frequency-ratio and bivariate
-statistical approaches since approximately 2018
+Machine learning has replaced traditional statistical approaches since around 2018
 \citep{abedi2021, bentivoglio2022review, ghosh2023karnali},
-with ensemble tree models (Random Forest, XGBoost, LightGBM) and their
-stacked combinations now representing the state of the art in AUC performance
+with ensemble methods (Random Forest, XGBoost, LightGBM) now the standard
 \citep{chen2023rules, kosi2025ml}.
-Despite this methodological progress, critical gaps persist,
-particularly in the Western Himalayan context.
+Despite this progress, important gaps remain, particularly for the Western Himalaya.
 
 \subsection{Research Gaps}
 \label{sec:gaps}
@@ -58,15 +55,13 @@ pre-trained ML classifiers, yet no FFSM paper has applied it to produce
 coverage-guaranteed susceptibility intervals.
 
 \paragraph{Gap 4 --- Absence of graph-based spatial dependencies.}
-Standard ML approaches treat every pixel or catchment as conditionally independent
-given the conditioning factors, ignoring the hydrological reality that an
-extreme-runoff event in an upstream catchment physically elevates flood risk
-in all downstream catchments through increased channel discharge
+Standard ML models treat each pixel independently, ignoring the basic fact that
+flooding upstream raises flood risk downstream by increasing river discharge
 \citep{bentivoglio2022review}.
-Graph Neural Networks (GNNs) are ideally suited to encode this structure:
-nodes represent sub-watersheds, directed edges encode river connectivity,
-and message-passing aggregates upstream state into downstream risk predictions.
-No published flash flood susceptibility paper applies GNNs as of early 2026.
+Graph Neural Networks (GNNs) are well-suited to model this: sub-watersheds become
+nodes, river connections become edges, and the model learns how upstream conditions
+propagate risk to downstream areas.
+No published flash flood susceptibility paper has applied GNNs as of early 2026.
 
 \paragraph{Gap 5 --- Cloud-contaminated or absent flood inventories.}
 Most HP studies rely on documentary records (NDMA, local government) that are

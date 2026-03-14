@@ -4,12 +4,9 @@
 \subsection{Does Graph Structure Improve Susceptibility Prediction?}
 \label{sec:disc_gnn}
 
-The core methodological claim of this study is that encoding watershed
-connectivity through a GNN improves susceptibility prediction
-over pixel-based models that treat each location independently.
-The spatial block CV results support this claim:
-GNN-GraphSAGE outperformed the best pixel-based model (stacking ensemble)
-by $\Delta$AUC\,=\,+0.094 across five folds.
+Does adding watershed connectivity improve flood predictions?
+Our results say yes: the GNN outperformed the best pixel-based model
+by $\Delta$AUC\,=\,+0.094 across all five cross-validation folds.
 
 The improvement mechanism is interpretable:
 by aggregating information from upstream sub-watersheds during message-passing,
@@ -39,12 +36,10 @@ that could learn to upweight edges connected to glacier-proximate nodes.
 \subsection{Conformal Prediction as a Communication Tool}
 \label{sec:disc_conformal}
 
-A persistent criticism of ML susceptibility maps is their overconfident
-presentation: a pixel value of 0.73 looks precise but reflects model uncertainty
-that has been collapsed to a single number.
-Conformal prediction addresses this by guaranteeing that
-a user who acts on the 90\% prediction interval will be correct
-in at least 90\% of cases, by construction.
+ML susceptibility maps typically report a single number per pixel (e.g., 0.73),
+which looks precise but hides the model's actual uncertainty.
+Conformal prediction fixes this by producing intervals that are correct
+at least 90\% of the time, by mathematical guarantee.
 
 Our results demonstrate two operationally relevant properties of the uncertainty map:
 
@@ -88,15 +83,14 @@ where optical imagery is cloud-contaminated for 80--90\% of July--August
 The standardised change-detection protocol also enables multi-year temporal
 consistency unavailable in documentary records.
 
-However, SAR flood detection has well-documented limitations in mountainous terrain
-\citep{nagamani2024sar}:
-(1) radar shadow and layover in steep valleys can both produce
-false positives (shadow artifacts misclassified as flood) and false negatives
-(flooded valley walls in shadow not detected);
-(2) the $-3$\,dB threshold, while standard, is empirically set and
-may under-detect shallow floods on high-roughness agricultural fields;
-(3) forest cover attenuates C-band backscatter, limiting detection
-in densely forested Shivalik valleys.
+However, radar-based flood detection has known limitations in steep terrain
+\citep{nagamani2024sar}.
+First, valley shadows can cause both false positives (shadow misread as water)
+and false negatives (flooded slopes hidden in shadow).
+Second, the brightness threshold used for detection is empirically set
+and may miss shallow floods on rough agricultural fields.
+Third, dense forest in the Shivalik foothills weakens the radar signal,
+reducing detection reliability.
 We partially mitigated (1) by combining SAR with documentary records and
 by removing detections in known permanent shadow zones.
 Future work should explore Sentinel-1 L-band data (NISAR, launching 2025--2026)

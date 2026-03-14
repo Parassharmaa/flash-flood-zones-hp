@@ -96,8 +96,8 @@ quality as a held-out benchmark.
 \subsection{Conditioning Factors}
 \label{sec:factors}
 
-Thirteen conditioning factors were assembled at 30\,m resolution,
-reprojected to UTM Zone 43N (EPSG:32643), and clipped to HP extent.
+Thirteen conditioning factors were assembled at 30\,m resolution
+and standardised to a common coordinate system.
 \cref{tab:factors} summarises each factor and its data source.
 
 \begin{table}[htbp]
@@ -153,12 +153,11 @@ and its eight neighbours \citep{riley1999tri}.
 \subsubsection{Rainfall Factors}
 \label{sec:rainfall}
 
-Monthly GPM-IMERG Final Run v07 precipitation composites (0.1° resolution)
-were downloaded for 2000--2023 and spatially interpolated to 30\,m
-using cubic spline resampling.
-Two rainfall factors were computed: (1) mean annual precipitation (mm/year)
-as a long-term climate proxy; and (2) the 95th percentile of daily event
-precipitation (p95, mm/day) as a trigger intensity proxy.
+Monthly satellite rainfall data (GPM-IMERG v07, 2000--2023) were downloaded
+and resampled to 30\,m resolution.
+Two rainfall variables were derived: (1) mean annual precipitation as a long-term
+climate indicator; and (2) the 95th percentile of daily rainfall as a proxy
+for high-intensity trigger events.
 
 \subsubsection{Multicollinearity Assessment}
 \label{sec:multicollinearity}
