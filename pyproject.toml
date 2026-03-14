@@ -2,7 +2,7 @@
 name = "flash-flood-zones-hp"
 version = "0.1.0"
 description = "Flash Flood Risk Intelligence for Himachal Pradesh — GNN + Conformal Prediction"
-requires-python = ">=3.11,<3.14"
+requires-python = ">=3.12,<3.14"
 dependencies = [
     # Core scientific
     "numpy>=2.4",

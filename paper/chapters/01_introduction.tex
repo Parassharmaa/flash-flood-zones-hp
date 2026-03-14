@@ -28,7 +28,7 @@ particularly in the Western Himalayan context.
 \subsection{Research Gaps}
 \label{sec:gaps}
 
-\paragraph{Gap 1 — No comprehensive peer-reviewed ML study for HP.}
+\paragraph{Gap 1 --- No comprehensive peer-reviewed ML study for HP.}
 Only one peer-reviewed ML paper targets HP specifically:
 \citet{saha2023} mapped susceptibility for the Beas basin using
 Multivariate Adaptive Regression Splines (MARS) and RF, achieving AUC\,=\,0.88
@@ -39,7 +39,7 @@ A CNN U-Net study (Research Square, 2025) remains a non-peer-reviewed preprint.
 The absence of a comprehensive, peer-reviewed benchmark for HP represents a clear
 publication gap.
 
-\paragraph{Gap 2 — Spatial autocorrelation in validation.}
+\paragraph{Gap 2 --- Spatial autocorrelation in validation.}
 The overwhelming majority of susceptibility studies use random train-test splits,
 which ignore spatial autocorrelation and inflate AUC by 5--15\%
 \citep{valavi2019, roberts2017cross}.
@@ -47,7 +47,7 @@ Spatial block cross-validation -- where geographically contiguous units form the
 has been advocated since at least 2017 but remains rarely applied in FFSM literature
 for the Indian Himalayan region.
 
-\paragraph{Gap 3 — No uncertainty quantification.}
+\paragraph{Gap 3 --- No uncertainty quantification.}
 All published HP susceptibility maps produce a single probability estimate per pixel,
 conveying no information about prediction confidence.
 Decision-makers at HP SDMA are therefore unable to distinguish zones where
@@ -57,7 +57,7 @@ statistically guaranteed coverage intervals and is directly applicable to
 pre-trained ML classifiers, yet no FFSM paper has applied it to produce
 coverage-guaranteed susceptibility intervals.
 
-\paragraph{Gap 4 — Absence of graph-based spatial dependencies.}
+\paragraph{Gap 4 --- Absence of graph-based spatial dependencies.}
 Standard ML approaches treat every pixel or catchment as conditionally independent
 given the conditioning factors, ignoring the hydrological reality that an
 extreme-runoff event in an upstream catchment physically elevates flood risk
@@ -68,7 +68,7 @@ nodes represent sub-watersheds, directed edges encode river connectivity,
 and message-passing aggregates upstream state into downstream risk predictions.
 No published flash flood susceptibility paper applies GNNs as of early 2026.
 
-\paragraph{Gap 5 — Cloud-contaminated or absent flood inventories.}
+\paragraph{Gap 5 --- Cloud-contaminated or absent flood inventories.}
 Most HP studies rely on documentary records (NDMA, local government) that are
 spatially imprecise and temporally incomplete.
 Sentinel-1 Synthetic Aperture Radar (SAR) operates independently of cloud cover,
