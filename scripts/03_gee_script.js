@@ -39,35 +39,35 @@ Export.image.toDrive({
   image: seasonalFlood(2018),
   description: 'flood_train_2018',
   folder: 'hp_flood_inventory',
-  region: hp, scale: 30, crs: 'EPSG:32643', maxPixels: 1e10
+  region: hp, scale: 30, crs: 'EPSG:4326', maxPixels: 1e10
 });
 
 Export.image.toDrive({
   image: seasonalFlood(2019),
   description: 'flood_train_2019',
   folder: 'hp_flood_inventory',
-  region: hp, scale: 30, crs: 'EPSG:32643', maxPixels: 1e10
+  region: hp, scale: 30, crs: 'EPSG:4326', maxPixels: 1e10
 });
 
 Export.image.toDrive({
   image: seasonalFlood(2020),
   description: 'flood_train_2020',
   folder: 'hp_flood_inventory',
-  region: hp, scale: 30, crs: 'EPSG:32643', maxPixels: 1e10
+  region: hp, scale: 30, crs: 'EPSG:4326', maxPixels: 1e10
 });
 
 Export.image.toDrive({
   image: seasonalFlood(2021),
   description: 'flood_train_2021',
   folder: 'hp_flood_inventory',
-  region: hp, scale: 30, crs: 'EPSG:32643', maxPixels: 1e10
+  region: hp, scale: 30, crs: 'EPSG:4326', maxPixels: 1e10
 });
 
 Export.image.toDrive({
   image: seasonalFlood(2022),
   description: 'flood_train_2022',
   folder: 'hp_flood_inventory',
-  region: hp, scale: 30, crs: 'EPSG:32643', maxPixels: 1e10
+  region: hp, scale: 30, crs: 'EPSG:4326', maxPixels: 1e10
 });
 
 // --- Test export (2023 - held out) ---
@@ -75,7 +75,7 @@ Export.image.toDrive({
   image: seasonalFlood(2023),
   description: 'flood_test_2023',
   folder: 'hp_flood_inventory',
-  region: hp, scale: 30, crs: 'EPSG:32643', maxPixels: 1e10
+  region: hp, scale: 30, crs: 'EPSG:4326', maxPixels: 1e10
 });
 
 // --- Rainfall: mean annual (GPM IMERG Monthly, mm/year) ---
