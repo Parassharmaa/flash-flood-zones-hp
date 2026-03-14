@@ -144,25 +144,21 @@ and valleys face highest risk this monsoon season and why."
 - [ ] Conformal prediction coverage analysis (does 90% interval actually contain 90%?)
 
 #### 7b — Paper
-- [ ] Abstract
-- [ ] Introduction + Research Gap (5 gaps addressed)
-- [ ] Study Area (HP geography, flood history, 2023 event)
-- [ ] Data & Methods
+- [x] Abstract (placeholder values for XX fields; complete once real data is in)
+- [x] Introduction + Research Gap (5 gaps addressed)
+- [x] Study Area (HP geography, flood history, 2023 event)
+- [x] Data & Methods
   - Conditioning factors + multicollinearity
   - SAR inventory construction
   - GNN architecture
   - Conformal prediction framework
   - Spatial CV design
-- [ ] Results
-  - Model comparison table
-  - Susceptibility maps
-  - SHAP analysis
-  - Infrastructure risk summary
-- [ ] Discussion
-  - GNN vs. pixel-based: does connectivity help?
-  - Uncertainty communication for SDMA
-  - Limitations
-- [ ] Conclusion
+- [x] Results (skeleton with XX placeholders; fill once real pipeline runs)
+- [x] Discussion
+- [x] Conclusion
+- [ ] Fill XX placeholders with real results (requires real SAR inventory + GEE run)
+- [ ] Add figure files (susceptibility map, uncertainty map, SHAP global/spatial)
+- [ ] LaTeX compilation check (tectonic)
 
 ---
 

@@ -188,7 +188,7 @@ def compute_spatial_factor_map(model, factor_names: list[str]) -> None:
         print("  Factor stack not found — skipping spatial SHAP map")
         return
 
-    print("  Computing spatial factor importance map...")
+    print("  Computing spatial factor importance map (downsampled 1/30)...")
     try:
         explainer = shap.TreeExplainer(_tree_compatible_model(model))
     except Exception:
@@ -200,31 +200,40 @@ def compute_spatial_factor_map(model, factor_names: list[str]) -> None:
         n_bands   = src.count
         height    = src.height
         width     = src.width
+        # Downsample 30× for SHAP spatial map (full res not needed for visualization)
+        scale = 1 / 30
+        out_h = max(1, int(height * scale))
+        out_w = max(1, int(width  * scale))
+        from rasterio.enums import Resampling as _RS
+        block = src.read(out_shape=(n_bands, out_h, out_w), resampling=_RS.average)
 
-    meta.update({"count": 1, "dtype": "int16", "nodata": -1, "compress": "lzw"})
-    factor_map = np.full((height, width), -1, dtype=np.int16)
+    from rasterio.transform import from_bounds
+    new_transform = from_bounds(
+        meta["transform"].c,
+        meta["transform"].f + height * meta["transform"].e,
+        meta["transform"].c + width  * meta["transform"].a,
+        meta["transform"].f,
+        out_w, out_h,
+    )
+    meta.update({
+        "count": 1, "dtype": "int16", "nodata": -1,
+        "compress": "lzw", "height": out_h, "width": out_w,
+        "transform": new_transform,
+    })
+    factor_map = np.full((out_h, out_w), -1, dtype=np.int16)
 
-    block_size = 128
-    with rasterio.open(stack_path) as src:
-        for row_start in range(0, height, block_size):
-            row_end = min(row_start + block_size, height)
-            from rasterio.windows import Window
-            window  = Window(0, row_start, width, row_end - row_start)
-            block   = src.read(window=window)
-            rows_px, cols_px = block.shape[1], block.shape[2]
-            X_block = block.reshape(n_bands, -1).T
-            valid   = np.all(X_block != -9999, axis=1) & np.all(np.isfinite(X_block), axis=1)
-            if valid.sum() == 0:
-                continue
-            sv = explainer.shap_values(X_block[valid])
-            if isinstance(sv, list):
-                sv = sv[1]
-            elif sv.ndim == 3:
-                sv = sv[:, :, 1]
-            dom_factor = np.argmax(np.abs(sv), axis=1).astype(np.int16)
-            flat = np.full(rows_px * cols_px, -1, dtype=np.int16)
-            flat[valid] = dom_factor
-            factor_map[row_start:row_end, :] = flat.reshape(rows_px, cols_px)
+    X_block = block.reshape(n_bands, -1).T
+    valid   = np.all(X_block != -9999, axis=1) & np.all(np.isfinite(X_block), axis=1)
+    if valid.sum() > 0:
+        sv = explainer.shap_values(X_block[valid])
+        if isinstance(sv, list):
+            sv = sv[1]
+        elif sv.ndim == 3:
+            sv = sv[:, :, 1]
+        dom_factor = np.argmax(np.abs(sv), axis=1).astype(np.int16)
+        flat = np.full(out_h * out_w, -1, dtype=np.int16)
+        flat[valid] = dom_factor
+        factor_map = flat.reshape(out_h, out_w)
 
     out_path = SHAP_DIR / "spatial_factor_map.tif"
     with rasterio.open(out_path, "w", **meta) as dst:

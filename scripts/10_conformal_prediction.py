@@ -328,7 +328,16 @@ def plot_susceptibility_maps(map_paths: dict) -> None:
             ax.set_title(title)
             continue
         with rasterio.open(path) as src:
-            data = src.read(1)
+            # Downsample to max 1000px on each side for fast plotting
+            h, w = src.height, src.width
+            scale = min(1000 / max(h, w), 1.0)
+            out_h, out_w = max(1, int(h * scale)), max(1, int(w * scale))
+            from rasterio.enums import Resampling as _RS
+            data = src.read(
+                1,
+                out_shape=(out_h, out_w),
+                resampling=_RS.average,
+            )
             extent = [src.bounds.left, src.bounds.right,
                       src.bounds.bottom, src.bounds.top]
         data_masked = np.ma.masked_where(data == -9999, data)

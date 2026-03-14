@@ -182,10 +182,11 @@ def build_factor_stack(retained: list[str], factor_data: dict[str, np.ndarray],
         meta = ref.meta.copy()
 
     meta.update({
-        "count":   len(retained),
-        "dtype":   "float32",
-        "nodata":  -9999,
+        "count":    len(retained),
+        "dtype":    "float32",
+        "nodata":   -9999,
         "compress": "lzw",
+        "BIGTIFF":  "YES",   # required for >4GB multi-band stack
     })
     stack_path = FACTORS_DIR / "factor_stack.tif"
     with rasterio.open(stack_path, "w", **meta) as dst:
