@@ -17,8 +17,9 @@
 *.cpg
 *.prj
 
-# PDFs (large)
+# PDFs (large) — except the paper itself
 *.pdf
+!paper/main.pdf
 
 # Jupyter / Python
 __pycache__/

@@ -41,6 +41,8 @@ dependencies = [
     # Notebook
     "jupyter>=1.1",
     "ipykernel>=6.29",
+    "streamlit>=1.19.0",
+    "plotly>=6.6.0",
 ]
 
 [build-system]
