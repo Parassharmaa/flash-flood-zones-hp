@@ -68,7 +68,7 @@ All results are mean\,$\pm$\,SD across the five LOBO folds.
   \end{tabular}
 \end{table}
 
-\begin{figure}[t]
+\begin{figure}[h]
   \centering
   \includegraphics[width=\columnwidth]{../results/paper_figures/fig04_model_comparison.png}
   \caption{\textbf{Model comparison under leave-one-basin-out spatial block CV.}
@@ -79,7 +79,7 @@ All results are mean\,$\pm$\,SD across the five LOBO folds.
   \label{fig:model_comparison}
 \end{figure}
 
-\begin{figure}[t]
+\begin{figure}[h]
   \centering
   \includegraphics[width=\columnwidth]{../results/paper_figures/fig05_gnn_improvement.png}
   \caption{\textbf{AUC improvement from watershed graph structure.}
@@ -120,7 +120,7 @@ at the cost of increased false positives.
 \subsection{Susceptibility Maps}
 \label{sec:results_maps}
 
-\begin{figure}[t]
+\begin{figure}[h]
   \centering
   \includegraphics[width=\textwidth]{../results/maps/susceptibility_uncertainty_map.png}
   \caption{\textbf{Flash flood susceptibility maps with conformal prediction uncertainty.}
@@ -155,9 +155,9 @@ providing qualitative validation of the map's spatial accuracy.
 \subsection{Conformal Prediction and Uncertainty Quantification}
 \label{sec:results_conformal}
 
-\begin{figure}[t]
+\begin{figure}[h]
   \centering
-  \includegraphics[width=\columnwidth]{../results/paper_figures/fig10_conformal_coverage.png}
+  \includegraphics[width=\textwidth]{../results/paper_figures/fig10_conformal_coverage.png}
   \caption{\textbf{Conformal prediction coverage analysis.}
     \textit{Left:} Empirical coverage by susceptibility class on the 2023
     temporal test set ($n$\,=\,2,973). Dashed line: target 90\% coverage.
@@ -206,7 +206,7 @@ Very High susceptibility zones alone cover approximately 4,409\,km$^2$ of HP
 \subsection{SHAP Feature Importance}
 \label{sec:results_shap}
 
-\begin{figure}[t]
+\begin{figure}[h]
   \centering
   \includegraphics[width=\columnwidth]{../results/shap/global_importance.png}
   \caption{\textbf{Global SHAP feature importance} (mean $|\phi_j|$ across all
@@ -218,7 +218,7 @@ Very High susceptibility zones alone cover approximately 4,409\,km$^2$ of HP
   \label{fig:shap_global}
 \end{figure}
 
-\begin{figure}[t]
+\begin{figure}[h]
   \centering
   \includegraphics[width=\columnwidth]{../results/shap/dependence_plots.png}
   \caption{\textbf{SHAP dependence plots} for the six most important conditioning
