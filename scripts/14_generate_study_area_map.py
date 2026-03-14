@@ -250,12 +250,24 @@ def main() -> None:
                                    edgecolor="#555555", linewidth=0.6, zorder=1)
         axin.add_collection(disp_col)
 
-    # HP highlight box
-    hp_marker = plt.Rectangle((75.5, 30.2), 3.5, 3.1,
-                               linewidth=1.5, edgecolor="#CC0000",
-                               facecolor="#FF4444", alpha=0.85, zorder=2)
-    axin.add_patch(hp_marker)
-    axin.text(77.2, 31.0, "HP", ha="center", va="center",
+    # HP highlight — actual state polygon
+    state_path = BOUNDARIES_DIR / "hp_state.geojson"
+    if state_path.exists():
+        hp_gj = load_geojson(state_path)
+        hp_feats = hp_gj.get("features", [hp_gj])
+        hp_patches = []
+        for feat in hp_feats:
+            geom = feat.get("geometry", feat)
+            if geom.get("type") == "Polygon":
+                hp_patches.append(MplPolygon(geom["coordinates"][0], closed=True))
+            elif geom.get("type") == "MultiPolygon":
+                for part in geom["coordinates"]:
+                    hp_patches.append(MplPolygon(part[0], closed=True))
+        hp_col = PatchCollection(hp_patches, facecolor="#FF4444",
+                                 edgecolor="#CC0000", linewidth=1.0,
+                                 alpha=0.9, zorder=2)
+        axin.add_collection(hp_col)
+    axin.text(77.4, 31.7, "HP", ha="center", va="center",
               fontsize=6, fontweight="bold", color="white", zorder=3)
     axin.set_xlim(63, 100)
     axin.set_ylim(5, 40)   # extended north to ~40°N to include POK/Aksai Chin
