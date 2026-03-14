@@ -21,17 +21,16 @@ var permWater = ee.Image('JRC/GSW1_4/GlobalSurfaceWater')
   .select('occurrence').gt(50).unmask(0);
 
 // Seasonal flood map: monsoon minimum vs dry reference
+// Note: small-patch filtering done in Python post-download (avoids projection issues)
 function seasonalFlood(year) {
-  var start    = year + '-06-01';
-  var end      = year + '-10-15';
-  var monsoon  = getS1(start, end);
-  var minBack  = monsoon.min();
-  var diff     = minBack.subtract(dryRef);
-  var flooded  = diff.lt(-3).unmask(0);
-  var noPermW  = flooded.where(permWater, 0);
-  var connected = noPermW.selfMask().connectedPixelCount(50, false);
-  var cleaned  = noPermW.where(connected.lt(6), 0);
-  return cleaned.toByte().rename('flood').set('year', year);
+  var start   = year + '-06-01';
+  var end     = year + '-10-15';
+  var monsoon = getS1(start, end);
+  var minBack = monsoon.min();
+  var diff    = minBack.subtract(dryRef);
+  var flooded = diff.lt(-3).unmask(0);
+  var noPermW = flooded.where(permWater, 0);
+  return noPermW.toByte().rename('flood').set('year', year);
 }
 
 // --- Training exports (2018-2022) ---
