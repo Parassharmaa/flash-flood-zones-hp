@@ -4,6 +4,11 @@
 Flash Flood Zone Mapping and Risk Analysis in Himachal Pradesh.
 See `.claude/PLAN.md` for the full implementation plan.
 
+## Output
+A **peer-reviewed journal paper** (not a thesis). Target: remote sensing / natural hazards journal
+(e.g., NHESS, Remote Sensing, IJDRS, Geomatics). Structure: Abstract, Introduction, Study Area,
+Data & Methods, Results, Discussion, Conclusion. Keep writing concise and journal-ready.
+
 ## Commands
 - `uv sync` — install dependencies
 - `uv run python scripts/<script>.py` — run a script
