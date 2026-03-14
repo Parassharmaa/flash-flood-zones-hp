@@ -112,10 +112,39 @@ Benchmark: Saha et al. 2023 (AUC=0.88) — target to beat.
 
 ---
 
+## Pipeline Status (2026-03-14)
+
+### Completed
+- Full pipeline runs on synthetic data (scripts 07-12 all pass)
+- Paper PDF compiles cleanly (2.12 MB, tectonic)
+- DEM downloading from Copernicus GLO-30 AWS (10/16 tiles as of now)
+- LULC tiles complete (4 tiles, ESA WorldCover)
+- GEE tasks running (user submitted, 2/8 failed due to HH polarisation)
+
+### GEE Issues & Fixes
+- **Error**: `Image.select: Band pattern 'VV' did not match any bands. Available bands: [HH, HV, angle]`
+  - **Cause**: Some Sentinel-1B scenes over HP use HH/HV instead of VV/VH
+  - **Fix**: Added `.filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VV'))` to `getS1()`
+  - **Action**: User must cancel failed tasks and re-run with updated script
+
+### Key Code Fixes This Session
+- Fixed DEM download URL: OpenTopography → Copernicus AWS S3
+- Fixed sys.path in all scripts (parent not parent.parent)
+- Fixed date parsing in flood inventory (year only, not YYYYMMDD)
+- Added scipy morphological opening to SAR flood mask processing
+- Added `distance_to_river` terrain factor (was in docs but not implemented)
+- Fixed `rainfall_extreme` filename (max_monthly not p95)
+
 ## Next Steps (Priority Order)
-1. Run `uv sync` to install dependencies
-2. Run `uv run python scripts/13_run_all.py` to validate full pipeline
-3. Execute GEE script (scripts/03_gee_script.js) to get real SAR inventory
-4. Download GEE outputs to data/raw/flood_inventory/sar/
-5. Re-run pipeline with real data
-6. Analyse results → update paper sections
+1. Wait for DEM download to complete (remaining 6 tiles)
+2. User: cancel failed GEE tasks, re-run with updated script (VV filter)
+3. User: download GEE outputs from Google Drive → data/raw/flood_inventory/sar/ and data/raw/rainfall/
+4. Run `uv run python scripts/04_preprocess_terrain.py` (needs all 16 DEM tiles)
+5. Run `uv run python scripts/05_watershed_delineation.py`
+6. Run `uv run python scripts/06_assemble_factors.py`
+7. Run `uv run python scripts/07_build_flood_inventory.py` (will use real SAR TIFs)
+8. Run `uv run python scripts/08_train_baseline_models.py`
+9. Run `uv run python scripts/09_train_gnn.py`
+10. Run `uv run python scripts/10_conformal_prediction.py`
+11. Run `uv run python scripts/11_shap_analysis.py`
+12. Update paper XX placeholders with real results
