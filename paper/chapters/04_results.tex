@@ -82,7 +82,7 @@ training coverage.
 \cref{fig:baseline_comparison} shows the ROC curves for all baseline models across folds.
 Per-fold results are summarised in \cref{tab:model_results}.
 
-\begin{figure}[h]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\columnwidth]{../results/paper_figures/fig_baseline_comparison.png}
   \caption{\textbf{ROC curves for baseline pixel-based models} under leave-one-basin-out
@@ -92,7 +92,7 @@ Per-fold results are summarised in \cref{tab:model_results}.
   \label{fig:baseline_comparison}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\columnwidth]{../results/paper_figures/fig04_model_comparison.png}
   \caption{\textbf{Model comparison under leave-one-basin-out spatial block CV.}
@@ -103,7 +103,7 @@ Per-fold results are summarised in \cref{tab:model_results}.
   \label{fig:model_comparison}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\columnwidth]{../results/paper_figures/fig05_gnn_improvement.png}
   \caption{\textbf{AUC improvement from watershed graph structure.}
@@ -155,7 +155,7 @@ The five-basin spatial pattern is broadly consistent with documented flood incid
 from the HiFlo-DAT and NDMA records,
 providing qualitative validation of the map's spatial accuracy.
 
-\begin{figure}[h]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{../results/paper_figures/fig_district_susceptibility.png}
   \caption{\textbf{District-level flash flood susceptibility.}
@@ -166,7 +166,7 @@ providing qualitative validation of the map's spatial accuracy.
   \label{fig:district_susceptibility}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{../results/maps/susceptibility_uncertainty_map.png}
   \caption{\textbf{Flash flood susceptibility maps with conformal prediction uncertainty.}
@@ -211,7 +211,7 @@ indicating that the model is overconfident for high-susceptibility predictions
 and that the SAR-derived training labels introduce label noise
 that degrades conformal calibration in the high-risk domain.
 
-\begin{figure}[h]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{../results/paper_figures/fig10_conformal_coverage.png}
   \caption{\textbf{Conformal prediction coverage analysis.}
@@ -259,7 +259,7 @@ In the Trans-Himalayan zone (Lahaul-Spiti, Kinnaur), elevation becomes the
 primary factor, reflecting the role of high-altitude snowmelt and GLOF mechanisms.
 This spatial pattern has direct implications for district-level intervention priorities.
 
-\begin{figure}[h]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\columnwidth]{../results/shap/global_importance.png}
   \caption{\textbf{Global SHAP feature importance} (mean $|\phi_j|$ across all
@@ -271,7 +271,7 @@ This spatial pattern has direct implications for district-level intervention pri
   \label{fig:shap_global}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\columnwidth]{../results/shap/dependence_plots.png}
   \caption{\textbf{SHAP dependence plots} for the six most important conditioning
@@ -284,7 +284,7 @@ This spatial pattern has direct implications for district-level intervention pri
 \cref{fig:district_shap} shows how the dominant susceptibility driver varies by district.
 Elevation dominates across most districts, consistent with HP's steep topographic gradients.
 
-\begin{figure}[h]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{../results/paper_figures/fig_district_shap.png}
   \caption{\textbf{District-level SHAP analysis.}
@@ -319,7 +319,7 @@ Overlaying the susceptibility map with infrastructure exposure layers reveals:
 
 \cref{fig:infrastructure_exposure} summarises the infrastructure exposure quantitatively.
 
-\begin{figure}[h]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{../results/paper_figures/fig_infrastructure_exposure.png}
   \caption{\textbf{Infrastructure exposure to high flash flood susceptibility.}
