@@ -28,8 +28,12 @@ __pycache__/
 .env
 .venv/
 
-# Results (large outputs)
+# Results (large outputs) — keep paper figures
 results/
+!results/paper_figures/
+!results/paper_figures/*.png
+!results/shap/*.png
+!results/maps/susceptibility_uncertainty_map.png
 
 # Raw data — track small GeoJSON/JSON/CSV but not large rasters
 data/raw/

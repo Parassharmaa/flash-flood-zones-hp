@@ -79,7 +79,18 @@ All models surpassed the \citet{saha2023} benchmark AUC of 0.88.
 The improvement is partially attributable to the larger, SAR-augmented
 training inventory and partially to the multi-basin versus single-basin
 training coverage.
+\cref{fig:baseline_comparison} shows the ROC curves for all baseline models across folds.
 Per-fold results are summarised in \cref{tab:model_results}.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{../results/paper_figures/fig_baseline_comparison.png}
+  \caption{\textbf{ROC curves for baseline pixel-based models} under leave-one-basin-out
+    spatial block cross-validation. Each curve represents one basin fold.
+    The stacking ensemble achieves the best pixel-level AUC (0.901),
+    with consistent performance across all five basin folds.}
+  \label{fig:baseline_comparison}
+\end{figure}
 
 \begin{figure}[h]
   \centering
@@ -134,9 +145,26 @@ Low susceptibility dominates the Trans-Himalayan plateau of Lahaul-Spiti
 (high elevation, low rainfall, sparse drainage) and the
 Yamuna headwaters in Sirmaur.
 
+\cref{fig:district_susceptibility} shows mean susceptibility and the fraction of High/Very High area
+by district. Una and Kangra show the highest mean susceptibility, consistent with their
+location in the Shivalik foothills where monsoonal rainfall intensity is greatest.
+Lahaul-Spiti has a higher fraction of High area due to GLOF-prone corridors
+despite low mean rainfall.
+
 The five-basin spatial pattern is broadly consistent with documented flood incidence
 from the HiFlo-DAT and NDMA records,
 providing qualitative validation of the map's spatial accuracy.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{../results/paper_figures/fig_district_susceptibility.png}
+  \caption{\textbf{District-level flash flood susceptibility.}
+    \textit{Left:} Mean susceptibility score (GNN-GraphSAGE) by district.
+    \textit{Right:} Percentage of district area classified as High or Very High susceptibility.
+    Una and Kangra show highest mean susceptibility; Lahaul-Spiti has elevated High-zone
+    fraction despite low mean rainfall due to GLOF exposure corridors.}
+  \label{fig:district_susceptibility}
+\end{figure}
 
 \begin{figure}[h]
   \centering
@@ -253,6 +281,20 @@ This spatial pattern has direct implications for district-level intervention pri
   \label{fig:shap_dependence}
 \end{figure}
 
+\cref{fig:district_shap} shows how the dominant susceptibility driver varies by district.
+Elevation dominates across most districts, consistent with HP's steep topographic gradients.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{../results/paper_figures/fig_district_shap.png}
+  \caption{\textbf{District-level SHAP analysis.}
+    \textit{Left:} Dominant conditioning factor (highest mean $|\mathrm{SHAP}|$) per district.
+    \textit{Right:} Heatmap of mean $|\mathrm{SHAP}|$ values for the six most important
+    factors across all districts. Elevation is the dominant driver in all districts;
+    TWI and distance to river are secondary drivers in the mid-Himalayan valleys.}
+  \label{fig:district_shap}
+\end{figure}
+
 \subsection{Infrastructure Risk Overlay}
 \label{sec:results_infrastructure}
 
@@ -274,3 +316,16 @@ Overlaying the susceptibility map with infrastructure exposure layers reveals:
     fall in High or Very High zones, concentrated in the Kullu--Manali corridor
     (highest tourist concentration in July--August, precisely the peak risk window).
 \end{itemize}
+
+\cref{fig:infrastructure_exposure} summarises the infrastructure exposure quantitatively.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{../results/paper_figures/fig_infrastructure_exposure.png}
+  \caption{\textbf{Infrastructure exposure to high flash flood susceptibility.}
+    \textit{Left:} Count of infrastructure assets in High or Very High susceptibility zones
+    across five categories. \textit{Right:} National highway exposure by route — NH-3
+    (Manali--Leh) carries the highest exposure with 217\,km in High/Very High zones,
+    followed by NH-5 (Shimla--Khab) with 156\,km.}
+  \label{fig:infrastructure_exposure}
+\end{figure}
