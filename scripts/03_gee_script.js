@@ -1,84 +1,107 @@
-// HP Flash Flood SAR Inventory - Sentinel-1 Change Detection
-// Run in GEE Code Editor: https://code.earthengine.google.com
-// NOTE: All ASCII only - no special chars to avoid GEE parser issues
+// HP Flash Flood SAR Inventory - Sentinel-1 Flood Detection
+// GEE Code Editor: https://code.earthengine.google.com
+// All ASCII only
 
 var hp = ee.Geometry.Rectangle([75.5, 30.3, 79.0, 33.3]);
 
-// Detect flood extent for a single event date string (e.g. '2018-07-25')
-function detectFlood(eventDate) {
-  var t = ee.Date(eventDate);
-
-  var preStart  = t.advance(-30, 'day');
-  var preEnd    = t.advance(-2,  'day');
-  var postStart = t.advance(1,   'day');
-  var postEnd   = t.advance(6,   'day');
-
-  var s1 = ee.ImageCollection('COPERNICUS/S1_GRD')
+// Build Sentinel-1 IW VV collection for a date range
+function getS1(startDate, endDate) {
+  return ee.ImageCollection('COPERNICUS/S1_GRD')
     .filterBounds(hp)
+    .filterDate(startDate, endDate)
     .filter(ee.Filter.eq('instrumentMode', 'IW'))
-    .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VV'))
-    .filter(ee.Filter.eq('orbitProperties_pass', 'DESCENDING'))
-    .select('VV');
-
-  var pre  = s1.filterDate(preStart, preEnd).median();
-  var post = s1.filterDate(postStart, postEnd).median();
-
-  var diff       = post.subtract(pre);
-  var floodRaw   = diff.lt(-3);
-  var floodClean = floodRaw.focal_mode({radius: 1, kernelType: 'square', units: 'pixels'});
-  var permWater  = ee.Image('JRC/GSW1_4/GlobalSurfaceWater').select('occurrence').gt(90);
-  var floodOnly  = floodClean.and(permWater.not());
-  var connected  = floodOnly.connectedPixelCount(100, false);
-  var largePatch = floodOnly.and(connected.gte(6));
-
-  return largePatch.toByte().set('event_date', eventDate);
+    .select(['VV']);
 }
 
-var trainEvents = [
-  '2018-07-25','2018-08-18','2019-07-31','2019-08-14',
-  '2020-07-28','2021-07-26','2021-08-17','2022-07-13','2022-08-24'
-];
+// Long-term dry season reference (Nov-Feb 2016-2022, median)
+var dryRef = getS1('2016-11-01', '2022-02-28').median();
 
-var testEvents = [
-  '2023-07-09','2023-07-14','2023-08-02','2023-08-13','2023-09-01'
-];
+// Permanent water mask
+var permWater = ee.Image('JRC/GSW1_4/GlobalSurfaceWater')
+  .select('occurrence').gt(50).unmask(0);
 
-for (var i = 0; i < trainEvents.length; i++) {
-  var d = trainEvents[i];
-  Export.image.toDrive({
-    image: detectFlood(d),
-    description: 'flood_train_' + d.replace(/-/g,''),
-    folder: 'hp_flood_inventory',
-    region: hp, scale: 30, crs: 'EPSG:32643', maxPixels: 1e10
-  });
+// Seasonal flood map: monsoon minimum vs dry reference
+function seasonalFlood(year) {
+  var start    = year + '-06-01';
+  var end      = year + '-10-15';
+  var monsoon  = getS1(start, end);
+  var minBack  = monsoon.min();
+  var diff     = minBack.subtract(dryRef);
+  var flooded  = diff.lt(-3).unmask(0);
+  var noPermW  = flooded.where(permWater, 0);
+  var connected = noPermW.selfMask().connectedPixelCount(50, false);
+  var cleaned  = noPermW.where(connected.lt(6), 0);
+  return cleaned.toByte().rename('flood').set('year', year);
 }
 
-for (var j = 0; j < testEvents.length; j++) {
-  var dt = testEvents[j];
-  Export.image.toDrive({
-    image: detectFlood(dt),
-    description: 'flood_test_' + dt.replace(/-/g,''),
-    folder: 'hp_flood_inventory',
-    region: hp, scale: 30, crs: 'EPSG:32643', maxPixels: 1e10
-  });
-}
-
-var rainfallMean = ee.ImageCollection('NASA/GPM_L3/IMERG_MONTHLY_V07')
-  .filterDate('2001-01-01','2023-12-31')
-  .select('precipitation').mean().multiply(8766);
-
+// --- Training exports (2018-2022) ---
 Export.image.toDrive({
-  image: rainfallMean, description: 'rainfall_mean_annual_gpm',
-  folder: 'hp_flood_inventory', region: hp, scale: 1000, crs: 'EPSG:32643', maxPixels: 1e9
+  image: seasonalFlood(2018),
+  description: 'flood_train_2018',
+  folder: 'hp_flood_inventory',
+  region: hp, scale: 30, crs: 'EPSG:32643', maxPixels: 1e10
 });
 
-var rainfallP95 = ee.ImageCollection('NASA/GPM_L3/IMERG_V07')
-  .filterDate('2001-01-01','2023-12-31')
-  .select('precipitation').reduce(ee.Reducer.percentile([95]));
-
 Export.image.toDrive({
-  image: rainfallP95, description: 'rainfall_extreme_p95_gpm',
-  folder: 'hp_flood_inventory', region: hp, scale: 1000, crs: 'EPSG:32643', maxPixels: 1e9
+  image: seasonalFlood(2019),
+  description: 'flood_train_2019',
+  folder: 'hp_flood_inventory',
+  region: hp, scale: 30, crs: 'EPSG:32643', maxPixels: 1e10
 });
 
-print('Tasks submitted - click RUN on each in the Tasks tab.');
+Export.image.toDrive({
+  image: seasonalFlood(2020),
+  description: 'flood_train_2020',
+  folder: 'hp_flood_inventory',
+  region: hp, scale: 30, crs: 'EPSG:32643', maxPixels: 1e10
+});
+
+Export.image.toDrive({
+  image: seasonalFlood(2021),
+  description: 'flood_train_2021',
+  folder: 'hp_flood_inventory',
+  region: hp, scale: 30, crs: 'EPSG:32643', maxPixels: 1e10
+});
+
+Export.image.toDrive({
+  image: seasonalFlood(2022),
+  description: 'flood_train_2022',
+  folder: 'hp_flood_inventory',
+  region: hp, scale: 30, crs: 'EPSG:32643', maxPixels: 1e10
+});
+
+// --- Test export (2023 - held out) ---
+Export.image.toDrive({
+  image: seasonalFlood(2023),
+  description: 'flood_test_2023',
+  folder: 'hp_flood_inventory',
+  region: hp, scale: 30, crs: 'EPSG:32643', maxPixels: 1e10
+});
+
+// --- Rainfall: mean annual (GPM IMERG Monthly, mm/year) ---
+var gpmCollection = ee.ImageCollection('NASA/GPM_L3/IMERG_MONTHLY_V07')
+  .filterDate('2001-01-01', '2023-12-31')
+  .select('precipitation');
+
+var gpmMean = gpmCollection.mean().multiply(8766).rename('rainfall_mm_yr');
+
+Export.image.toDrive({
+  image: gpmMean,
+  description: 'rainfall_mean_annual_gpm',
+  folder: 'hp_flood_inventory',
+  region: hp, scale: 5000, crs: 'EPSG:4326', maxPixels: 1e9
+});
+
+// --- Rainfall: 95th percentile monthly (extreme months proxy) ---
+var gpmList   = gpmCollection.toList(gpmCollection.size());
+var gpmSorted = gpmCollection.sort('system:time_start');
+var gpmP95    = gpmSorted.reduce(ee.Reducer.percentile([95])).rename('rainfall_p95');
+
+Export.image.toDrive({
+  image: gpmP95,
+  description: 'rainfall_extreme_p95_gpm',
+  folder: 'hp_flood_inventory',
+  region: hp, scale: 5000, crs: 'EPSG:4326', maxPixels: 1e9
+});
+
+print('8 export tasks queued. Open Tasks tab and click RUN on each.');
