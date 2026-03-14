@@ -329,3 +329,36 @@ Overlaying the susceptibility map with infrastructure exposure layers reveals:
     followed by NH-5 (Shimla--Khab) with 156\,km.}
   \label{fig:infrastructure_exposure}
 \end{figure}
+
+\subsection{Operational Decision Framework}
+\label{sec:results_framework}
+
+Combining susceptibility level with conformal uncertainty width produces a four-tier
+operational framework for HP SDMA (\cref{tab:decision_framework}).
+The key insight is that both dimensions are required for actionable decisions:
+very high susceptibility alone is insufficient if model uncertainty is also high
+(as in the Trans-Himalayan GLOF corridors),
+whereas narrow uncertainty with high susceptibility (as in the Beas--Satluj valleys)
+warrants immediate protective investment.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Operational decision framework for HP SDMA based on susceptibility level
+    and conformal prediction uncertainty width ($W$).}
+  \label{tab:decision_framework}
+  \small
+  \begin{tabularx}{\textwidth}{llllX}
+    \toprule
+    Priority & Susceptibility & Uncertainty & Zone Area & Recommended Action \\
+    \midrule
+    \textbf{P1 — Immediate} & Very High ($>$0.70) & Narrow ($W < 0.15$) & $\sim$1,200\,km$^2$ &
+      Immediate action: early warning deployment, bridge reinforcement, pre-monsoon clearance \\
+    \textbf{P2 — Capital} & High (0.50--0.70) & Any & $\sim$11,376\,km$^2$ &
+      Capital repair: prioritise roads and bridges in high-certainty corridors \\
+    \textbf{P3 — Monitor} & Very High ($>$0.70) & Wide ($W > 0.15$) & $\sim$3,200\,km$^2$ &
+      Precautionary monitoring: invest in GLOF surveillance and data collection \\
+    \textbf{P4 — Routine} & Low--Moderate ($<$0.50) & Any & $\sim$94,000\,km$^2$ &
+      Standard preparedness: seasonal advisory and routine maintenance \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
