@@ -235,20 +235,24 @@ def main() -> None:
     from matplotlib.patches import Polygon as MplPolygon
     from matplotlib.collections import PatchCollection
 
-    # Draw India (de facto: mainland + Andaman & Nicobar + Lakshadweep)
+    # Union all India rings (mainland + islands + disputed territories) so only
+    # the outer boundary is drawn — no internal lines between regions
+    from shapely.geometry import Polygon as ShapelyPolygon
+    from shapely.ops import unary_union
+
     india_rings = get_india_polygons()
-    india_patches = [MplPolygon(ring, closed=True) for ring in india_rings]
+    disputed_rings = get_disputed_polygons()
+    all_polys = [ShapelyPolygon(r) for r in india_rings + disputed_rings if len(r) >= 3]
+    india_union = unary_union(all_polys)
+
+    union_geoms = (list(india_union.geoms)
+                   if india_union.geom_type == "MultiPolygon"
+                   else [india_union])
+    india_patches = [MplPolygon(list(g.exterior.coords), closed=True)
+                     for g in union_geoms]
     india_col = PatchCollection(india_patches, facecolor="#D5D5D5",
                                 edgecolor="#555555", linewidth=0.6, zorder=1)
     axin.add_collection(india_col)
-
-    # Draw disputed territories (POK, Aksai Chin) as part of India
-    disputed_rings = get_disputed_polygons()
-    if disputed_rings:
-        disp_patches = [MplPolygon(ring, closed=True) for ring in disputed_rings]
-        disp_col = PatchCollection(disp_patches, facecolor="#D5D5D5",
-                                   edgecolor="#555555", linewidth=0.6, zorder=1)
-        axin.add_collection(disp_col)
 
     # HP highlight — actual state polygon
     state_path = BOUNDARIES_DIR / "hp_state.geojson"
