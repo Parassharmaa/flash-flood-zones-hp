@@ -93,9 +93,7 @@ Export.image.toDrive({
 });
 
 // --- Rainfall: 95th percentile monthly (extreme months proxy) ---
-var gpmList   = gpmCollection.toList(gpmCollection.size());
-var gpmSorted = gpmCollection.sort('system:time_start');
-var gpmP95    = gpmSorted.reduce(ee.Reducer.percentile([95])).rename('rainfall_p95');
+var gpmP95 = gpmCollection.max().rename("rainfall_max_monthly");
 
 Export.image.toDrive({
   image: gpmP95,
