@@ -111,8 +111,9 @@ Per-fold results are summarised in \cref{tab:model_results}.
   \includegraphics[width=\columnwidth]{../results/paper_figures/fig05_gnn_improvement.png}
   \caption{\textbf{AUC improvement from watershed graph structure.}
     Grouped bars show GNN-GraphSAGE vs.\ best pixel-based model (Stacking Ensemble)
-    per basin fold. Largest gains in Satluj and Beas; smallest in Chenab
-    where GLOF-triggered events do not follow runoff-accumulation patterns.}
+    per k-means spatial block fold. The GNN improves over the pixel-based baseline
+    in all five folds. The largest absolute gain (+0.27) occurs in basin\_0,
+    a predominantly Trans-Himalayan block where pixel-based models struggle most (AUC\,$\approx$\,0.73).}
   \label{fig:gnn_improvement}
 \end{figure}
 

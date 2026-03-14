@@ -135,8 +135,7 @@ def main() -> None:
     ax.set_xlabel("Longitude (°E)", fontsize=11)
     ax.set_ylabel("Latitude (°N)", fontsize=11)
     ax.set_title(
-        "Figure 1: Study Area — Himachal Pradesh, India\n"
-        "Five Major River Basins (Spatial CV Folds)",
+        "Himachal Pradesh — Five Major River Basins",
         fontsize=12, fontweight="bold",
     )
 

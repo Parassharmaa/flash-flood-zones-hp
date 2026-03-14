@@ -2,15 +2,8 @@
 Phase 5/7 — Generate all publication-quality figures for the paper.
 
 Figures:
-  Fig 1.  Study area map (HP + major river basins + districts)
-  Fig 2.  Conditioning factors overview (12-panel)
-  Fig 3.  Flood inventory map (training vs test events)
   Fig 4.  Model comparison: AUC across spatial CV folds (all models)
   Fig 5.  GNN vs baseline: AUC improvement from graph structure
-  Fig 6.  Susceptibility map + uncertainty (3-panel)
-  Fig 7.  SHAP global importance
-  Fig 8.  SHAP dependence plots (top 6 factors)
-  Fig 9.  Infrastructure risk overlay
   Fig 10. Conformal coverage analysis
 
 All outputs → results/paper_figures/
@@ -54,25 +47,14 @@ def fig_model_comparison() -> None:
         dfs.append(pd.read_csv(gnn_path))
 
     if not dfs:
-        print("  No CV results found — generating synthetic comparison")
-        rng = np.random.default_rng(RANDOM_SEED)
-        models = ["RF", "XGBoost", "LightGBM", "Stacking", "GNN-GraphSAGE"]
-        basins = ["Beas", "Satluj", "Chenab", "Ravi"]
-        rows = []
-        base_aucs = {"RF": 0.82, "XGBoost": 0.85, "LightGBM": 0.84,
-                     "Stacking": 0.87, "GNN-GraphSAGE": 0.91}
-        for m in models:
-            for b in basins:
-                rows.append({"model": m, "fold": b,
-                              "auc": round(base_aucs[m] + rng.normal(0, 0.03), 4)})
-        df = pd.DataFrame(rows)
-    else:
-        df = pd.concat(dfs, ignore_index=True)
+        print("  No CV results found — skipping fig 4")
+        return
+
+    df = pd.concat(dfs, ignore_index=True)
 
     # ── Plot ──
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
-    # Left: box plot
     model_order = ["RF", "XGBoost", "LightGBM", "Stacking", "GNN-GraphSAGE",
                    "GNN-NeighAgg-proxy"]
     model_order = [m for m in model_order if m in df["model"].unique()]
@@ -86,7 +68,7 @@ def fig_model_comparison() -> None:
     axes[0].axhline(0.88, color="gray", linestyle="--", alpha=0.7, linewidth=1.5,
                     label="Saha et al. 2023 benchmark (0.88)")
     axes[0].set_ylabel("AUC-ROC (spatial block CV)")
-    axes[0].set_title("Model Comparison — Spatial Block CV\n(Leave-One-Basin-Out)")
+    axes[0].set_title("AUC Distribution — Leave-One-Block-Out CV")
     axes[0].set_ylim(0.55, 1.01)
     axes[0].legend(fontsize=9, loc="lower right")
     axes[0].tick_params(axis="x", rotation=20)
@@ -101,14 +83,12 @@ def fig_model_comparison() -> None:
     axes[1].set_xticks(x)
     axes[1].set_xticklabels(model_order, rotation=20, ha="right")
     axes[1].set_ylabel("Mean AUC-ROC ± SD")
-    axes[1].set_title("Mean AUC ± SD\n(Spatial Block CV)")
+    axes[1].set_title("Mean AUC ± SD (5-fold spatial block CV)")
     axes[1].set_ylim(0.55, 1.01)
     for bar, mean, std in zip(bars, means, stds):
         axes[1].text(bar.get_x() + bar.get_width() / 2, mean + std + 0.005,
                      f"{mean:.3f}", ha="center", va="bottom", fontsize=9, fontweight="bold")
 
-    plt.suptitle("Figure 4: Flash Flood Susceptibility Model Performance Comparison\n"
-                 "Himachal Pradesh — All Major River Basins", fontsize=12, fontweight="bold")
     plt.tight_layout()
     out = PAPER_DIR / "fig04_model_comparison.png"
     plt.savefig(out, dpi=200, bbox_inches="tight")
@@ -117,37 +97,53 @@ def fig_model_comparison() -> None:
 
 
 def fig_gnn_improvement() -> None:
-    """Fig 5: GNN vs pixel-based — AUC improvement from graph structure."""
-    rng = np.random.default_rng(RANDOM_SEED)
+    """Fig 5: GNN vs best pixel-based model — per-fold AUC improvement."""
+    baseline_path = VALIDATION_DIR / "baseline_cv_results.csv"
+    gnn_path      = VALIDATION_DIR / "gnn_cv_results.csv"
 
-    # Simulated results until real data available
-    basins    = ["Beas", "Satluj", "Chenab", "Ravi"]
-    pixel_auc = [0.83, 0.86, 0.80, 0.84]
-    gnn_auc   = [0.91, 0.93, 0.89, 0.92]
+    if not baseline_path.exists() or not gnn_path.exists():
+        print("  CV result files not found — skipping fig 5")
+        return
 
-    x = np.arange(len(basins))
-    fig, ax = plt.subplots(figsize=(9, 5))
+    baseline_df = pd.read_csv(baseline_path)
+    gnn_df      = pd.read_csv(gnn_path)
+
+    # Best baseline per fold = max AUC across all pixel-based models
+    best_baseline = (
+        baseline_df.groupby("fold")["auc"].max().reset_index()
+        .rename(columns={"auc": "pixel_auc"})
+    )
+    gnn_fold = gnn_df[["fold", "auc"]].rename(columns={"auc": "gnn_auc"})
+    merged = best_baseline.merge(gnn_fold, on="fold")
+    merged = merged.sort_values("fold").reset_index(drop=True)
+
+    folds     = merged["fold"].tolist()
+    pixel_auc = merged["pixel_auc"].tolist()
+    gnn_auc   = merged["gnn_auc"].tolist()
+
+    x = np.arange(len(folds))
+    fig, ax = plt.subplots(figsize=(10, 5))
     w = 0.35
     ax.bar(x - w/2, pixel_auc, w, label="Best Pixel-Based (Stacking)",
            color="#FFEAA7", edgecolor="black")
-    ax.bar(x + w/2, gnn_auc, w, label="GNN-GraphSAGE (watershed graph)",
+    ax.bar(x + w/2, gnn_auc,   w, label="GNN-GraphSAGE (watershed graph)",
            color="#DDA0DD", edgecolor="black")
 
     for i, (p, g) in enumerate(zip(pixel_auc, gnn_auc)):
-        imp = (g - p) / p * 100
-        ax.annotate(f"+{imp:.1f}%", xy=(x[i] + w/2, g + 0.005),
+        delta = g - p
+        ax.annotate(f"+{delta:.3f}", xy=(x[i] + w/2, g + 0.005),
                     ha="center", va="bottom", fontsize=9,
                     color="#6A0DAD", fontweight="bold")
 
     ax.axhline(0.88, color="gray", linestyle="--", alpha=0.6,
                label="Saha et al. 2023 (0.88)")
     ax.set_xticks(x)
-    ax.set_xticklabels(basins)
+    ax.set_xticklabels(folds, rotation=15, ha="right")
     ax.set_ylabel("AUC-ROC")
-    ax.set_ylim(0.65, 1.02)
-    ax.set_title("Figure 5: AUC Improvement from Watershed Graph Structure\n"
-                 "GNN vs Best Pixel-Based Model (by basin fold)",
-                 fontweight="bold")
+    ax.set_xlabel("Spatial block fold (k-means)")
+    ax.set_ylim(0.60, 1.05)
+    ax.set_title("AUC Improvement from Watershed Graph Structure\n"
+                 "GNN-GraphSAGE vs Best Pixel-Based Model (per spatial block fold)")
     ax.legend(fontsize=10)
     plt.tight_layout()
     out = PAPER_DIR / "fig05_gnn_improvement.png"
@@ -162,12 +158,13 @@ def fig_conformal_coverage() -> None:
     if coverage_path.exists():
         cov = json.loads(coverage_path.read_text())
     else:
+        # Values taken directly from paper results section
         cov = {
             "target_coverage": 0.90,
-            "achieved_coverage": 0.921,
-            "avg_interval_width": 0.187,
+            "achieved_coverage": 0.829,
+            "avg_interval_width": 0.32,
             "coverage_by_level": {
-                "Low": 0.96, "Moderate": 0.92, "High": 0.91, "Very High": 0.89
+                "Low": 0.963, "Moderate": 0.609, "High": 0.453, "Very High": 0.593
             }
         }
 
@@ -177,7 +174,7 @@ def fig_conformal_coverage() -> None:
     levels = list(cov["coverage_by_level"].keys())
     covs   = list(cov["coverage_by_level"].values())
     colors = ["#2ECC71", "#F1C40F", "#E67E22", "#E74C3C"][:len(levels)]
-    bars = axes[0].bar(levels, covs, color=colors, edgecolor="black", linewidth=0.8, width=0.55)
+    axes[0].bar(levels, covs, color=colors, edgecolor="black", linewidth=0.8, width=0.55)
     axes[0].axhline(cov["target_coverage"], color="navy", linestyle="--",
                     linewidth=2, label=f"Target: {cov['target_coverage']:.0%}")
     axes[0].set_ylabel("Empirical Coverage", fontsize=11)
@@ -190,22 +187,21 @@ def fig_conformal_coverage() -> None:
     for i, (lv, c) in enumerate(zip(levels, covs)):
         axes[0].text(i, c + 0.02, f"{c:.1%}", ha="center", va="bottom",
                      fontsize=10, fontweight="bold")
-    # Add note for undercovered classes
     axes[0].text(0.5, -0.13,
-                 "High and Very High classes are undercovered — model is overconfident in high-risk zones",
+                 "High and Very High classes undercovered — model overconfident in high-risk zones",
                  ha="center", va="top", fontsize=8, style="italic", color="#666",
                  transform=axes[0].transAxes)
 
-    # Right: summary metrics as clean table
+    # Right: summary metrics
     achieved = cov["achieved_coverage"]
     target   = cov["target_coverage"]
     width    = cov["avg_interval_width"]
 
     rows = [
-        ("Overall coverage",   f"{achieved:.1%}",  "#E74C3C" if achieved < target else "#2ECC71"),
-        ("Target coverage",    f"{target:.0%}",    "#2C3E50"),
-        ("Mean interval width", f"{width:.3f}",    "#2C3E50"),
-        ("Coverage valid?",    "No (82.9% < 90%)", "#E74C3C"),
+        ("Overall coverage",    f"{achieved:.1%}",  "#E74C3C" if achieved < target else "#2ECC71"),
+        ("Target coverage",     f"{target:.0%}",    "#2C3E50"),
+        ("Mean interval width", f"{width:.3f}",     "#2C3E50"),
+        ("Coverage shortfall",  f"{target - achieved:.1%}", "#E74C3C"),
     ]
 
     axes[1].axis("off")
@@ -224,7 +220,7 @@ def fig_conformal_coverage() -> None:
         y_pos -= 0.18
 
     axes[1].text(0.5, 0.08,
-                 "Undercoverage in high-risk zones is attributed to\nSAR label noise in the training inventory.",
+                 "Undercoverage in high-risk zones attributed to\nSAR label noise in the training inventory.",
                  ha="center", va="bottom", fontsize=9, style="italic",
                  transform=axes[1].transAxes, color="gray")
 
@@ -236,35 +232,44 @@ def fig_conformal_coverage() -> None:
 
 
 def fig_validation_table() -> None:
-    """Generate LaTeX validation table for paper."""
-    rng     = np.random.default_rng(RANDOM_SEED)
-    models  = ["RF", "XGBoost", "LightGBM", "Stacking Ensemble", "GNN-GraphSAGE"]
-    rows    = []
-    base    = {"RF": 0.82, "XGBoost": 0.85, "LightGBM": 0.84,
-               "Stacking Ensemble": 0.87, "GNN-GraphSAGE": 0.91}
-    f1_base = {"RF": 0.71, "XGBoost": 0.74, "LightGBM": 0.73,
-               "Stacking Ensemble": 0.77, "GNN-GraphSAGE": 0.83}
+    """Generate LaTeX validation table from real CV results."""
+    baseline_path = VALIDATION_DIR / "baseline_cv_results.csv"
+    gnn_path      = VALIDATION_DIR / "gnn_cv_results.csv"
 
-    for m in models:
+    if not baseline_path.exists():
+        print("  No CV results — skipping validation table")
+        return
+
+    baseline_df = pd.read_csv(baseline_path)
+    rows = []
+    for model in ["RF", "XGBoost", "LightGBM", "Stacking"]:
+        sub = baseline_df[baseline_df["model"] == model]
+        if sub.empty:
+            continue
         rows.append({
-            "Model": m,
-            "AUC (CV)": f"{base[m]:.3f} ± {rng.uniform(0.01, 0.03):.3f}",
-            "F1 (CV)":  f"{f1_base[m]:.3f} ± {rng.uniform(0.01, 0.03):.3f}",
-            "AUC (2023)": f"{base[m] - rng.uniform(0.01, 0.05):.3f}",
-            "F1 (2023)": f"{f1_base[m] - rng.uniform(0.01, 0.05):.3f}",
+            "Model":   model,
+            "AUC (mean ± SD)": f"{sub['auc'].mean():.3f} ± {sub['auc'].std():.3f}",
+            "F1 (mean)":  f"{sub['f1'].mean():.3f}",
+            "Kappa (mean)": f"{sub['kappa'].mean():.3f}",
+        })
+
+    if gnn_path.exists():
+        gnn_df = pd.read_csv(gnn_path)
+        rows.append({
+            "Model":   "GNN-GraphSAGE",
+            "AUC (mean ± SD)": f"{gnn_df['auc'].mean():.3f} ± {gnn_df['auc'].std():.3f}",
+            "F1 (mean)":  f"{gnn_df['f1'].mean():.3f}",
+            "Kappa (mean)": f"{gnn_df['kappa'].mean():.3f}",
         })
 
     df = pd.DataFrame(rows)
-    # LaTeX table
     latex = df.to_latex(index=False, escape=False,
-                         caption="Model performance comparison (spatial block CV and temporal validation).",
-                         label="tab:model_comparison")
+                         caption="Model performance under 5-fold spatial block CV.",
+                         label="tab:model_comparison_auto")
     out_tex = PAPER_DIR / "table_model_comparison.tex"
     out_tex.write_text(latex)
-    print(f"  Validation table (LaTeX) → {out_tex}")
-
-    # Also CSV
     df.to_csv(PAPER_DIR / "table_model_comparison.csv", index=False)
+    print(f"  Validation table → {out_tex}")
 
 
 def main() -> None:
@@ -278,7 +283,6 @@ def main() -> None:
     fig_validation_table()
 
     print(f"\nAll figures → {PAPER_DIR}")
-    print("Next: run 13_run_all.py to execute full pipeline")
 
 
 if __name__ == "__main__":

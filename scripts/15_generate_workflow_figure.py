@@ -83,10 +83,10 @@ def main() -> None:
 
     # ── Phase 2: Preprocessing ────────────────────────────────────────────────
     proc_boxes = [
-        (4.2, 7.5, "SAR Flood\nInventory",          "Pre/post change detect."),
-        (4.2, 6.2, "Terrain Factors\n(8 vars)",      "Slope,TWI,SPI,TRI…"),
+        (4.2, 7.5, "SAR Flood\nInventory",          "Seasonal composite\nchange detect."),
+        (4.2, 6.2, "Terrain Factors\n(8 DEM vars)",  "Slope,TWI,SPI,TRI…"),
         (4.2, 4.8, "Multicollinearity\nCheck",       "Pearson |r|>0.8, VIF>10"),
-        (4.2, 3.5, "Sub-watershed\nDelineation",     "D8, ~300 catchments"),
+        (4.2, 3.5, "Sub-watershed\nDelineation",     "D8, ~460 sub-watersheds"),
         (4.2, 2.5, "Watershed Graph\nConstruction",  "Directed edges upstr→dstr"),
     ]
     for x, y, lbl, sub in proc_boxes:
@@ -96,7 +96,7 @@ def main() -> None:
     model_boxes = [
         (7.0, 7.3, "Baseline Models",         "RF · XGBoost · LightGBM\nStacking Ensemble"),
         (7.0, 5.7, "GraphSAGE GNN\n★ Novel",  "Watershed graph\n3 layers, 64 dim"),
-        (7.0, 4.1, "Spatial Block CV",        "Leave-one-basin-out\n5 folds"),
+        (7.0, 4.1, "Spatial Block CV",        "Leave-one-block-out\n5 k-means blocks"),
     ]
     for x, y, lbl, sub in model_boxes:
         box(ax, x, y, 2.3, 0.95, lbl, sub,
@@ -116,8 +116,7 @@ def main() -> None:
         (12.5, 7.5, "Susceptibility\nMaps (4 class)",  "30m, HP-wide"),
         (12.5, 6.3, "Uncertainty\nWidth Maps",          "90% CI per pixel"),
         (12.5, 5.1, "SHAP Factor\nMaps",                "Dominant factor/district"),
-        (12.5, 3.9, "NHESS / Remote\nSensing Paper",   "Target Q1 journal"),
-        (12.5, 2.8, "HP SDMA\nBriefings",              "District risk reports"),
+        (12.5, 3.9, "Infrastructure\nExposure Report",  "Roads, bridges, hydro"),
     ]
     for x, y, lbl, sub in out_boxes:
         box(ax, x, y, 2.3, 0.75, lbl, sub, PHASE_COLOURS["output"])
@@ -142,7 +141,6 @@ def main() -> None:
     arrow(ax, 10.95, 7.3, 11.35, 6.3)
     arrow(ax, 10.95, 5.7, 11.35, 5.1)
     arrow(ax, 10.95, 4.1, 11.35, 3.9)
-    arrow(ax, 10.95, 4.1, 11.35, 2.8)
 
     # ── Legend ────────────────────────────────────────────────────────────────
     legend_patches = [
@@ -157,8 +155,7 @@ def main() -> None:
               bbox_to_anchor=(0.5, -0.02))
 
     ax.set_title(
-        "Figure 2: Methodological Workflow\n"
-        "Flash Flood Susceptibility Mapping — Himachal Pradesh",
+        "Methodological Workflow — Flash Flood Susceptibility Mapping",
         fontsize=12, fontweight="bold", pad=10,
     )
 
