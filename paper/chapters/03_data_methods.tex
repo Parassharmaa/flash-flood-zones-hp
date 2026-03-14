@@ -245,13 +245,19 @@ a neighbourhood-aggregation MLP proxy is used as a computational fallback
 \subsection{Spatial Block Cross-Validation}
 \label{sec:validation}
 
-All models were evaluated using leave-one-basin-out (LOBO) spatial block
-cross-validation with five folds corresponding to the five major river basins
-(Beas, Satluj, Chenab, Ravi, Yamuna).
-In each fold, the held-out basin served as the test set and the four
-remaining basins as training data.
-This design mirrors the intended use case: training on well-studied basins
-and predicting susceptibility in a spatially separated target basin.
+All models were evaluated using leave-one-block-out (LOBO) spatial block
+cross-validation with five geographically contiguous folds.
+Because the flood inventory spans multiple interleaved sub-basins without clean
+named-basin polygon boundaries, blocks were constructed by applying k-means
+clustering ($k = 5$) to the UTM Zone 43N centroid coordinates of the 460
+sub-watersheds, producing five geographically compact, non-overlapping spatial blocks.
+Each point observation (flood and non-flood) was assigned to the block containing
+its nearest watershed centroid.
+In each fold, all observations from one block were held out as the test set
+and the remaining four blocks formed the training set.
+This design enforces strict geographic separation between training and test data,
+mitigating the 5--15\% AUC inflation documented for random splits by
+\citet{valavi2019} and \citet{roberts2017cross}.
 Reported AUC values are the mean and standard deviation across the five folds.
 
 The following metrics were recorded per fold:

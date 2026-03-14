@@ -66,9 +66,11 @@ def load_training_data() -> tuple[np.ndarray, np.ndarray, pd.DataFrame]:
     nonflood_train = nonflood_gdf[nonflood_gdf["split"] == "train"]
     all_points     = pd.concat([flood_train, nonflood_train], ignore_index=True)
 
-    # Sample raster values at points
-    coords = [(geom.x, geom.y) for geom in all_points.geometry]
+    # Sample raster values at points — reproject to raster CRS first
     with rasterio.open(stack_path) as src:
+        raster_crs = src.crs
+        all_points_proj = all_points.to_crs(raster_crs)
+        coords = [(geom.x, geom.y) for geom in all_points_proj.geometry]
         sampled = list(sample_gen(src, coords))
     X = np.array(sampled, dtype=np.float32)
     y = all_points["label"].values

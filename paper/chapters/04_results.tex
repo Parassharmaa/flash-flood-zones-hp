@@ -57,10 +57,10 @@ All results are mean\,$\pm$\,SD across the five LOBO folds.
     \toprule
     Model & AUC-ROC & F1 & Kappa & TPR & FPR \\
     \midrule
-    Random Forest       & 0.900\,$\pm$\,0.004 & 0.573 & 0.441 & 0.950 & 0.119 \\
-    XGBoost             & 0.890\,$\pm$\,0.005 & 0.533 & 0.436 & 0.548 & 0.067 \\
-    LightGBM            & 0.893\,$\pm$\,0.006 & 0.571 & 0.469 & 0.657 & 0.097 \\
-    Stacking Ensemble   & 0.901\,$\pm$\,0.004 & 0.511 & 0.424 & 0.449 & 0.049 \\
+    Random Forest       & 0.880\,$\pm$\,0.088 & 0.548 & 0.403 & 0.950 & 0.119 \\
+    XGBoost             & 0.871\,$\pm$\,0.089 & 0.436 & 0.327 & 0.548 & 0.067 \\
+    LightGBM            & 0.870\,$\pm$\,0.100 & 0.482 & 0.366 & 0.657 & 0.097 \\
+    Stacking Ensemble   & 0.881\,$\pm$\,0.087 & 0.144 & 0.091 & 0.449 & 0.049 \\
     \textbf{GNN-GraphSAGE} & \textbf{0.978\,$\pm$\,0.017} & \textbf{--} & \textbf{--} & \textbf{--} & \textbf{--} \\
     \midrule
     Benchmark (Saha 2023) & 0.88 (no spatial CV) & -- & -- & -- & -- \\
@@ -70,15 +70,17 @@ All results are mean\,$\pm$\,SD across the five LOBO folds.
 
 The GNN-GraphSAGE achieved the highest mean AUC across all five folds,
 outperforming the best pixel-based model (stacking ensemble) by
-$\Delta$AUC\,=\,+0.077.
+$\Delta$AUC\,=\,+0.097.
 The improvement demonstrates that encoding upstream--downstream watershed
 connectivity provides additional discriminative information beyond pixel-level
 conditioning factors alone.
 
-All models surpassed the \citet{saha2023} benchmark AUC of 0.88.
-The improvement is partially attributable to the larger, SAR-augmented
-training inventory and partially to the multi-basin versus single-basin
-training coverage.
+The stacking ensemble and Random Forest surpassed the \citet{saha2023} benchmark AUC of 0.88;
+LightGBM (0.870) and XGBoost (0.871) fell marginally below it.
+The relatively large within-model variance across folds ($\pm$0.087--0.100) reflects
+the spatially heterogeneous nature of the five k-means spatial blocks,
+with basin\_0 (a predominantly Trans-Himalayan block) being consistently harder
+to generalise across (AUC\,$\approx$\,0.72--0.73 for all pixel-based models).
 \cref{fig:baseline_comparison} shows the ROC curves for all baseline models across folds.
 Per-fold results are summarised in \cref{tab:model_results}.
 
@@ -86,9 +88,10 @@ Per-fold results are summarised in \cref{tab:model_results}.
   \centering
   \includegraphics[width=\columnwidth]{../results/paper_figures/fig_baseline_comparison.png}
   \caption{\textbf{ROC curves for baseline pixel-based models} under leave-one-basin-out
-    spatial block cross-validation. Each curve represents one basin fold.
-    The stacking ensemble achieves the best pixel-level AUC (0.901),
-    with consistent performance across all five basin folds.}
+    spatial block cross-validation. Each curve represents one spatial block fold.
+    The stacking ensemble achieves the best pixel-level AUC (0.881),
+    with notable variation across folds; the Trans-Himalayan block (basin\_0) is
+    consistently the most challenging.}
   \label{fig:baseline_comparison}
 \end{figure}
 
@@ -119,8 +122,8 @@ Per-fold results are summarised in \cref{tab:model_results}.
 The best-performing pixel-based model (stacking ensemble, as the GNN operates
 at watershed level) was evaluated against the held-out 2023 events.
 AUC on the temporal test set was 0.892, indicating reasonable generalisation
-to events outside the training period despite a 0.009 reduction from the
-spatial-CV mean (AUC\,=\,0.901).
+to events outside the training period and a slight improvement over the
+spatial-CV mean (AUC\,=\,0.881).
 False negative rate on 2023 events was 50.4\%, indicating that approximately
 half of the actual 2023 flood locations were detected at a 0.5 probability threshold.
 This FNR reflects the challenging nature of out-of-year generalisation

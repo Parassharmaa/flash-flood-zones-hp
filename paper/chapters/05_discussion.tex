@@ -6,7 +6,7 @@
 
 Does adding watershed connectivity improve flood predictions?
 Our results say yes: the GNN outperformed the best pixel-based model
-by $\Delta$AUC\,=\,+0.077 across all five cross-validation folds.
+by $\Delta$AUC\,=\,+0.097 across all five cross-validation folds.
 
 The improvement mechanism is interpretable:
 by aggregating information from upstream sub-watersheds during message-passing,
@@ -17,17 +17,16 @@ own local conditioning factors would not indicate high susceptibility in isolati
 This mirrors the physical process of progressive discharge accumulation
 as runoff from tributaries joins the main channel.
 
-The magnitude of the GNN improvement varies substantially by basin fold.
-The Satluj fold shows the largest improvement, which we attribute to
-the highly structured upstream catchment network of Spiti:
-long, steep tributary valleys act as runoff funnels,
-and the GNN's message-passing explicitly captures this funnel structure.
-The Chenab fold shows the smallest improvement,
-consistent with the hypothesis that GLOF-triggered events
-(which contribute a higher fraction of inventory events in Chenab)
-do not follow the incremental runoff-accumulation pattern well-captured
-by directed GNN message-passing --
-rather, they originate from discrete glacial lake release events.
+The magnitude of the GNN improvement varies across spatial block folds.
+The largest absolute gains occur in blocks containing well-connected mid-Himalayan
+valley networks where progressive runoff accumulation is the dominant flood mechanism.
+The Trans-Himalayan block (basin\_0) is consistently challenging for all models
+(pixel-based AUC\,$\approx$\,0.72--0.73),
+reflecting the prevalence of GLOF-triggered events in Lahaul-Spiti that do not
+follow incremental runoff-accumulation patterns well-captured by directed GNN
+message-passing --- rather, they originate from discrete glacial lake release events.
+The GNN achieves its largest relative advantage in this block
+by leveraging upstream glacial-exposure signals aggregated across the sub-watershed graph.
 
 Future work should explore GNN variants better suited to GLOF contexts,
 such as graph attention networks (GATs; \citealt{velickovic2018gat})
@@ -99,14 +98,14 @@ which penetrates forest cover more effectively.
 \subsection{Comparison with Prior Studies}
 \label{sec:disc_comparison}
 
-Our mean spatial-CV AUC of 0.901 (stacking ensemble) surpasses the
+Our mean spatial-CV AUC of 0.881 (stacking ensemble) surpasses the
 single-basin benchmark of \citet{saha2023} (AUC\,=\,0.88) despite
 applying a more conservative spatial block CV evaluation.
 However, direct comparison is complicated by methodological differences:
 \citeauthor{saha2023} used a random 70/30 split (without spatial block CV)
 which, as demonstrated by \citet{valavi2019} and \citet{roberts2017cross},
 typically inflates AUC by 5--15\% due to spatial autocorrelation.
-The GNN achieves 0.978 AUC under the same fold structure, substantially
+The GNN achieves 0.978\,$\pm$\,0.017 AUC under the same fold structure, substantially
 exceeding the prior benchmark while maintaining rigorous spatial hold-out.
 
 This highlights an important implication for the field:
