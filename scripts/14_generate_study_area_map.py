@@ -27,22 +27,22 @@ BASIN_COLOURS = {
     "Yamuna": "#DDA0DD",
 }
 
-def get_india_polygon() -> list[tuple]:
+def get_india_polygons() -> list[list[tuple]]:
     """
-    Load India's boundary from local cache (Natural Earth 110m, downloaded once).
-    Run the script once with internet access to populate the cache.
+    Load India's boundary from local cache (Natural Earth 50m, downloaded once).
+    Returns all rings: mainland + Andaman & Nicobar + Lakshadweep.
     """
-    cache_path = BOUNDARIES_DIR / "india_outline.json"
+    cache_path = BOUNDARIES_DIR / "india_outline_50m.json"
 
     if cache_path.exists():
-        coords = json.loads(cache_path.read_text())
-        return [(c[0], c[1]) for c in coords]
+        rings = json.loads(cache_path.read_text())
+        return [[(c[0], c[1]) for c in ring] for ring in rings]
 
-    # Download from Natural Earth 110m countries (run once)
+    # Download Natural Earth 50m (includes all islands)
     ne_url = ("https://raw.githubusercontent.com/nvkelso/natural-earth-vector"
-              "/master/geojson/ne_110m_admin_0_countries.geojson")
-    print("  Fetching India boundary from Natural Earth (one-time download)...")
-    with urllib.request.urlopen(ne_url, timeout=15) as resp:
+              "/master/geojson/ne_50m_admin_0_countries.geojson")
+    print("  Fetching India boundary from Natural Earth 50m (one-time download)...")
+    with urllib.request.urlopen(ne_url, timeout=30) as resp:
         data = json.loads(resp.read())
     india = next(
         f for f in data["features"]
@@ -50,12 +50,71 @@ def get_india_polygon() -> list[tuple]:
            or f["properties"].get("NAME") == "India"
     )
     geom = india["geometry"]
-    rings = [geom["coordinates"][0]] if geom["type"] == "Polygon" \
-            else [p[0] for p in geom["coordinates"]]
-    coords = max(rings, key=len)   # longest ring = mainland
-    cache_path.write_text(json.dumps(coords))
-    print(f"  Cached → {cache_path}")
-    return [(c[0], c[1]) for c in coords]
+    if geom["type"] == "Polygon":
+        rings = [geom["coordinates"][0]]
+    else:  # MultiPolygon — mainland + all islands
+        rings = [p[0] for p in geom["coordinates"]]
+    cache_path.write_text(json.dumps(rings))
+    print(f"  Cached {len(rings)} rings → {cache_path}")
+    return [[(c[0], c[1]) for c in ring] for ring in rings]
+
+
+def get_disputed_polygons() -> list[list[tuple]]:
+    """
+    Load India's disputed territories (POK / Aksai Chin) from Natural Earth.
+    Tries 10m first (has explicit disputed_areas layer), falls back to empty list.
+    """
+    cache_path = BOUNDARIES_DIR / "india_disputed_10m.json"
+
+    if cache_path.exists():
+        rings = json.loads(cache_path.read_text())
+        return [[(c[0], c[1]) for c in ring] for ring in rings]
+
+    ne_url = ("https://raw.githubusercontent.com/nvkelso/natural-earth-vector"
+              "/master/geojson/ne_10m_admin_0_disputed_areas.geojson")
+    print("  Fetching disputed areas from Natural Earth 10m...")
+    try:
+        with urllib.request.urlopen(ne_url, timeout=45) as resp:
+            data = json.loads(resp.read())
+    except Exception as e:
+        print(f"  Could not fetch disputed areas ({e}); skipping.")
+        cache_path.write_text("[]")
+        return []
+
+    # Features administered by Pakistan (POK) or China (Aksai Chin)
+    # that India claims
+    keep_admins = {"Pakistan", "China"}
+    # rough bounding box of India's disputed northern territories
+    # lon 71–81°E, lat 32–37.5°N
+    rings = []
+    for feat in data["features"]:
+        props = feat.get("properties", {})
+        admin = props.get("ADMIN", "") or props.get("admin", "") or ""
+        geom = feat.get("geometry")
+        if not geom or admin not in keep_admins:
+            continue
+        # filter by bbox — only features inside the disputed northern region
+        coords_flat = []
+        if geom["type"] == "Polygon":
+            coords_flat = geom["coordinates"][0]
+        elif geom["type"] == "MultiPolygon":
+            for p in geom["coordinates"]:
+                coords_flat.extend(p[0])
+        lons = [c[0] for c in coords_flat]
+        lats = [c[1] for c in coords_flat]
+        if not lons:
+            continue
+        # Keep only features in the north-west Himalayan disputed region
+        if min(lats) > 25 and max(lats) < 40 and min(lons) > 68 and max(lons) < 82:
+            if geom["type"] == "Polygon":
+                rings.append(geom["coordinates"][0])
+            elif geom["type"] == "MultiPolygon":
+                for p in geom["coordinates"]:
+                    rings.append(p[0])
+
+    cache_path.write_text(json.dumps(rings))
+    print(f"  Cached {len(rings)} disputed rings → {cache_path}")
+    return [[(c[0], c[1]) for c in ring] for ring in rings]
 
 # Major locations (lon, lat, label, district)
 LOCATIONS = [
@@ -174,18 +233,33 @@ def main() -> None:
     # ── Inset: India locator ──────────────────────────────────────────────────
     axin = ax.inset_axes([0.02, 0.02, 0.25, 0.28])
     from matplotlib.patches import Polygon as MplPolygon
-    india_poly = MplPolygon(get_india_polygon(), closed=True,
-                            facecolor="#D5D5D5", edgecolor="#555555",
-                            linewidth=0.8, zorder=1)
-    axin.add_patch(india_poly)
+    from matplotlib.collections import PatchCollection
+
+    # Draw India (de facto: mainland + Andaman & Nicobar + Lakshadweep)
+    india_rings = get_india_polygons()
+    india_patches = [MplPolygon(ring, closed=True) for ring in india_rings]
+    india_col = PatchCollection(india_patches, facecolor="#D5D5D5",
+                                edgecolor="#555555", linewidth=0.6, zorder=1)
+    axin.add_collection(india_col)
+
+    # Draw disputed territories (POK, Aksai Chin — claimed by India)
+    disputed_rings = get_disputed_polygons()
+    if disputed_rings:
+        disp_patches = [MplPolygon(ring, closed=True) for ring in disputed_rings]
+        disp_col = PatchCollection(disp_patches, facecolor="#E8E8E8",
+                                   edgecolor="#888888", linewidth=0.5,
+                                   linestyle="dashed", zorder=1)
+        axin.add_collection(disp_col)
+
+    # HP highlight box
     hp_marker = plt.Rectangle((75.5, 30.2), 3.5, 3.1,
                                linewidth=1.5, edgecolor="#CC0000",
                                facecolor="#FF4444", alpha=0.85, zorder=2)
     axin.add_patch(hp_marker)
     axin.text(77.2, 31.0, "HP", ha="center", va="center",
               fontsize=6, fontweight="bold", color="white", zorder=3)
-    axin.set_xlim(65, 99)
-    axin.set_ylim(6, 38)
+    axin.set_xlim(63, 100)
+    axin.set_ylim(5, 40)   # extended north to ~40°N to include POK/Aksai Chin
     axin.set_xticks([])
     axin.set_yticks([])
     axin.set_title("India", fontsize=7, pad=2)
