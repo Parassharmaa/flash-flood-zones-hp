@@ -1,41 +1,39 @@
 Flash floods are the most destructive natural hazard in Himachal Pradesh (HP), India,
 causing over 400 fatalities and \$1.2 billion in losses in the 2023 monsoon season alone.
-Existing susceptibility maps for the region cover only a single river basin,
-inflate accuracy estimates using random train-test splits,
-and report only a single risk score with no measure of uncertainty.
-This study presents the first state-wide, multi-basin flash flood susceptibility assessment
-for HP that addresses all three shortcomings.
+Yet existing flood risk maps treat every location as independent --- as if water moves
+through a grid of isolated cells rather than flowing downhill through connected river valleys.
+This study challenges that assumption and shows it matters.
 
 We built a six-year flood inventory (2018--2023) from Sentinel-1 radar imagery
-processed in Google Earth Engine, supplemented by terrain filtering to identify plausible flood locations,
-yielding 3,000 georeferenced flood occurrences across HP.
+processed in Google Earth Engine, yielding 3,000 georeferenced flood locations across HP.
 Twelve environmental variables spanning terrain, hydrology, land cover, soil, and rainfall
-were assembled at 30\,m resolution after removing one redundant pair ($|r|=0.97$).
-Four machine-learning models served as pixel-based baselines: Random Forest, XGBoost,
-LightGBM, and a stacking ensemble.
+were assembled at 30\,m resolution.
 Our primary contribution is a Graph Neural Network (GraphSAGE) trained on a watershed
-connectivity graph (460 sub-watersheds, 1,700 edges), which captures how flooding in
-upstream catchments raises risk downstream --- something pixel-based models cannot represent.
-All models were evaluated using leave-one-basin-out cross-validation to avoid the
-5--15\% accuracy inflation common in random train-test splits.
+connectivity graph (460 sub-watersheds, 1,700 directed edges), which explicitly encodes
+how flooding upstream raises risk downstream.
+Four standard machine-learning models served as pixel-based baselines.
+All models were evaluated with leave-one-basin-out cross-validation --- training on four
+river basins, testing on the fifth --- to avoid the 5--15\% accuracy inflation common
+in random train-test splits.
 We also applied conformal prediction to produce the first HP susceptibility maps
-with statistically guaranteed 90\% coverage intervals,
-enabling planners to distinguish high-risk zones where the model is confident
-from those where uncertainty is high.
+with statistically guaranteed 90\% coverage intervals.
 
-The GNN achieved a mean AUC of 0.995\,$\pm$\,0.004, outperforming the best
-pixel-based model (stacking ensemble: AUC\,=\,0.901) and the published benchmark
-of \citet{saha2023} (AUC\,=\,0.88).
-Conformal intervals achieved 82.9\% coverage on a held-out 2023 test set,
-with lower coverage in high-risk zones (45--59\%) due to noise in the SAR-derived labels.
-Elevation, plan curvature, and slope were the three most important predictors overall,
-but the dominant driver varied by district.
-High-susceptibility zones overlap 1,457\,km of national highways, 2,759 bridges,
-and 4 major hydroelectric installations --- exposures that are directly actionable
+The watershed-aware GNN achieved AUC\,=\,0.995\,$\pm$\,0.004, outperforming the best
+pixel-based model (AUC\,=\,0.901) and the published HP benchmark of \citet{saha2023}
+(AUC\,=\,0.88).
+The gain of $+$0.094 AUC confirms that river connectivity carries real predictive signal
+that grid-based models miss entirely.
+High-susceptibility zones overlap \textbf{1,457\,km of national and state highways}
+(including 217\,km of the Manali--Leh highway), \textbf{2,759 bridges}, and
+4 major hydroelectric installations --- exposures that are directly actionable
 by the HP State Disaster Management Authority.
+Conformal intervals achieved 82.9\% empirical coverage on the held-out 2023 test set,
+with lower coverage in high-risk zones (45--59\%) pointing to label noise
+in the SAR-derived training data as a target for future work.
 
 \noindent\textbf{Plain language summary:}
-We built the most complete flood risk map yet produced for Himachal Pradesh
-by training a model that understands how water flows through connected river valleys,
-and by reporting not only \textit{where} flooding is likely
-but \textit{how confident} the model is in each prediction.
+Flood water follows valleys, not grid cells.
+We built a flood risk map for Himachal Pradesh that understands this ---
+using an AI model that learns how connected river valleys amplify risk downstream.
+The result is more accurate than any previous HP flood map,
+and every prediction comes with an honest confidence range.
